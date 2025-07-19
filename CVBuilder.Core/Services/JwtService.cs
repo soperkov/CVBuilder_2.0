@@ -1,11 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using CVBuilder.Core.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-
-namespace CVBuilder.Core.Services
+﻿namespace CVBuilder.Core.Services
 {
     public class JwtService
     {

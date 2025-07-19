@@ -1,9 +1,4 @@
-﻿using CVBuilder.Db.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CVBuilder.Db.Extensions
+﻿namespace CVBuilder.Db.Extensions
 {
     public static class ServiceCollectionExtensions
     {

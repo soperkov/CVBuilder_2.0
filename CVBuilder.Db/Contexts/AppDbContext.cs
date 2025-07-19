@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using CVBuilder.Core.Models;
-
-namespace CVBuilder.Db.Contexts
+﻿namespace CVBuilder.Db.Contexts
 {
     public class AppDbContext : DbContext
     {

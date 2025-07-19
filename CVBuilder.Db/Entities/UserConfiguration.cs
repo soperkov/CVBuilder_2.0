@@ -1,13 +1,4 @@
-﻿using CVBuilder.Core.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CVBuilder.Db.Entities
+﻿namespace CVBuilder.Db.Entities
 {
     public class UserConfiguration : IEntityTypeConfiguration<UserModel>
     {

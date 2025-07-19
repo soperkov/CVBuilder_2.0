@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CVBuilder.Core.Dtos
+﻿namespace CVBuilder.Core.Dtos
 {
     public class RegisterUserDto
     {

@@ -1,9 +1,4 @@
-﻿using System.Net.Mail;
-using System.Net;
-using CVBuilder.Core.Settings;
-using Microsoft.Extensions.Options;
-
-namespace CVBuilder.Core.Services
+﻿namespace CVBuilder.Core.Services
 {
     public class EmailService
     {
