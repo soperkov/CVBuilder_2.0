@@ -17,21 +17,21 @@ namespace CVBuilder.Db.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PreviewImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TemplateKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    HtmlTemplatePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CssClass = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FontFamily = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PrimaryColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccentColor = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PreviewImageUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TemplateKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    HtmlTemplatePath = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CssClass = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FontFamily = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PrimaryColor = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AccentColor = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     IsTwoColumn = table.Column<bool>(type: "bit", nullable: false),
-                    PaperSize = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaperSize = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     IsDefault = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -62,15 +62,15 @@ namespace CVBuilder.Db.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedByUser = table.Column<int>(type: "int", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AboutMe = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TemplateId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    AboutMe = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PhotoUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    TemplateId = table.Column<int>(type: "int", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
                 },
                 constraints: table =>
                 {
@@ -80,10 +80,10 @@ namespace CVBuilder.Db.Migrations
                         column: x => x.TemplateId,
                         principalTable: "Templates",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_CVs_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_CVs_Users_CreatedByUser",
+                        column: x => x.CreatedByUser,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -96,20 +96,20 @@ namespace CVBuilder.Db.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CVId = table.Column<int>(type: "int", nullable: false),
-                    InstitutionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InstitutionName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     From = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    To = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CVModelId = table.Column<int>(type: "int", nullable: true)
+                    To = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Educations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Educations_CVs_CVModelId",
-                        column: x => x.CVModelId,
+                        name: "FK_Educations_CVs_CVId",
+                        column: x => x.CVId,
                         principalTable: "CVs",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,20 +119,20 @@ namespace CVBuilder.Db.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CVId = table.Column<int>(type: "int", nullable: false),
-                    CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     From = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    To = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CVModelId = table.Column<int>(type: "int", nullable: true)
+                    To = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employments_CVs_CVModelId",
-                        column: x => x.CVModelId,
+                        name: "FK_Employments_CVs_CVId",
+                        column: x => x.CVId,
                         principalTable: "CVs",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -141,19 +141,24 @@ namespace CVBuilder.Db.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CVId = table.Column<int>(type: "int", nullable: false),
-                    CVModelId = table.Column<int>(type: "int", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CVId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Skills", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Skills_CVs_CVModelId",
-                        column: x => x.CVModelId,
+                        name: "FK_Skills_CVs_CVId",
+                        column: x => x.CVId,
                         principalTable: "CVs",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CVs_CreatedByUser",
+                table: "CVs",
+                column: "CreatedByUser");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CVs_TemplateId",
@@ -161,24 +166,19 @@ namespace CVBuilder.Db.Migrations
                 column: "TemplateId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CVs_UserId",
-                table: "CVs",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Educations_CVModelId",
+                name: "IX_Educations_CVId",
                 table: "Educations",
-                column: "CVModelId");
+                column: "CVId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employments_CVModelId",
+                name: "IX_Employments_CVId",
                 table: "Employments",
-                column: "CVModelId");
+                column: "CVId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Skills_CVModelId",
+                name: "IX_Skills_CVId",
                 table: "Skills",
-                column: "CVModelId");
+                column: "CVId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",

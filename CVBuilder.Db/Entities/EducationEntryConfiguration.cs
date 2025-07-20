@@ -18,7 +18,7 @@
                 .WithMany(c => c.Education)
                 .HasForeignKey(e => e.CVId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.ToTable("EducationEntries");
+            builder.ToTable("Educations");
         }
     }
 }

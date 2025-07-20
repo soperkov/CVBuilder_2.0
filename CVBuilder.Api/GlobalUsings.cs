@@ -1,0 +1,9 @@
+﻿global using CVBuilder.Core.Dtos;
+global using CVBuilder.Core.Models;
+global using CVBuilder.Core.Services;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.AspNetCore.Authorization;
+global using System.Security.Claims;
+global using System.Security.Cryptography;
+global using CVBuilder.Db.Contexts;

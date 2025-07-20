@@ -35,7 +35,7 @@
 
             builder.HasMany(u => u.CVs)
                 .WithOne(c => c.User)
-                .HasForeignKey(c => c.UserId)
+                .HasForeignKey(c => c.CreatedByUser)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable("Users");
