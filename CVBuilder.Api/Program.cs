@@ -1,3 +1,4 @@
+using CVBuilder.Core.Settings;
 using CVBuilder.Db.Extensions;
 
 namespace CVBuilder.Api
@@ -15,6 +16,26 @@ namespace CVBuilder.Api
             builder.Services.AddOpenApi();
 
             builder.Services.AddDatabase(builder.Configuration);
+
+            builder.Services.AddScoped<JwtService>();
+
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddScoped<EmailService>();
+
+            builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
             var app = builder.Build();
 

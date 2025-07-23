@@ -7,3 +7,6 @@ global using Microsoft.AspNetCore.Authorization;
 global using System.Security.Claims;
 global using System.Security.Cryptography;
 global using CVBuilder.Db.Contexts;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Text;
