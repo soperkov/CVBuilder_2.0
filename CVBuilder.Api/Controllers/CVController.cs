@@ -248,5 +248,31 @@ namespace CVBuilder.Api.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteCV(int id)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+            var cv = await _context.CVs
+                .Include(c => c.Skills)
+                .Include(c => c.Education)
+                .Include(c => c.Employment)
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+
+            if (cv == null)
+                return NotFound("CV not found or does not belong to the user.");
+
+            _context.Skills.RemoveRange(cv.Skills);
+            _context.Educations.RemoveRange(cv.Education);
+            _context.Employments.RemoveRange(cv.Employment);
+            _context.CVs.Remove(cv);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
     }
 }
