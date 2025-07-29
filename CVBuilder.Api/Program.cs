@@ -11,6 +11,18 @@ namespace CVBuilder.Api
 
             // Add services to the container.
 
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:58668")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
@@ -49,6 +61,9 @@ namespace CVBuilder.Api
 
             app.UseAuthorization();
 
+            app.UseRouting();
+
+            app.UseCors("_myAllowSpecificOrigins");
 
             app.MapControllers();
 

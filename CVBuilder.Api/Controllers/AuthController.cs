@@ -24,7 +24,13 @@
             }
 
             if (_context.Users.Any(u => u.Email == dto.Email))
-                return BadRequest("Email is already registered.");
+            {
+                return BadRequest(new
+                {
+                    title = "Email is already registered."
+                });
+            }
+
 
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
