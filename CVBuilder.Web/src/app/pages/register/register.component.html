@@ -4,10 +4,7 @@
     <label>First Name</label>
     <input type="text" formControlName="firstName" />
     <div
-      *ngIf="
-        registerForm.get('firstName')?.touched &&
-        registerForm.get('firstName')?.invalid
-      "
+      *ngIf="registerForm.get('firstName')?.touched && registerForm.get('firstName')?.errors?.['required']"
       style="color: red"
     >
       First name is required.
@@ -19,10 +16,7 @@
     <label>Last Name</label>
     <input type="text" formControlName="lastName" />
     <div
-      *ngIf="
-        registerForm.get('lastName')?.touched &&
-        registerForm.get('lastName')?.invalid
-      "
+      *ngIf="registerForm.get('lastName')?.touched && registerForm.get('lastName')?.errors?.['required']"
       style="color: red"
     >
       Last name is required.

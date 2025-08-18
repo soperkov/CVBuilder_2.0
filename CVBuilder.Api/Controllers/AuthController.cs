@@ -54,7 +54,8 @@
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized("Invalid email or password.");
+                return Unauthorized(new { title = "Invalid email or password." });
+            ;
 
             var token = _jwtService.GenerateToken(user);
             return Ok(new { token });
