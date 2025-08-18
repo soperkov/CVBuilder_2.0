@@ -9,6 +9,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { CreateCVComponent } from './pages/create-cv/create-cv.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { UserInfoComponent } from './shared/user-info/user-info.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { RegisterComponent } from './pages/register/register.component';
     CreateCVComponent,
     LoginComponent,
     RegisterComponent,
+    UserInfoComponent,
   ],
   imports: [
     BrowserModule,

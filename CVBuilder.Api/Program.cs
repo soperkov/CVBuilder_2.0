@@ -1,6 +1,3 @@
-using CVBuilder.Core.Settings;
-using CVBuilder.Db.Extensions;
-
 namespace CVBuilder.Api
 {
     public class Program
@@ -28,6 +25,9 @@ namespace CVBuilder.Api
             builder.Services.AddOpenApi();
 
             builder.Services.AddDatabase(builder.Configuration);
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ICVService, CVService>();
 
             builder.Services.AddScoped<JwtService>();
 
