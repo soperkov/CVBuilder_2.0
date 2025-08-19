@@ -1,0 +1,22 @@
+<div class="auth-container">
+  <div class="auth-box">
+    <h2>{{ showLogin ? "Login to Your Account" : "Create New Account" }}</h2>
+
+    <app-login *ngIf="showLogin" (switchToRegister)="toggleForm()"></app-login>
+    <app-register
+      *ngIf="!showLogin"
+      (switchToLogin)="toggleForm()"
+    ></app-register>
+
+    <div class="form-switch">
+      <p *ngIf="showLogin">
+        Don't have an account?
+        <a role="button" (click)="toggleForm()">Register here</a>
+      </p>
+      <p *ngIf="!showLogin">
+        Already have an account?
+        <a role="button" (click)="toggleForm()">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+<form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
+  <!-- Osnovni podaci -->
+  <div>
+    <label>Full Name</label>
+    <input formControlName="fullName" />
+  </div>
+
+  <div>
+    <label>Date of Birth</label>
+    <input type="date" formControlName="dateOfBirth" />
+  </div>
+
+  <div>
+    <label>Phone Number</label>
+    <input formControlName="phoneNumber" />
+  </div>
+
+  <div>
+    <label>Email</label>
+    <input type="email" formControlName="email" />
+  </div>
+
+  <div>
+    <label>About Me</label>
+    <textarea formControlName="aboutMe"></textarea>
+  </div>
+
+  <div>
+    <label>Photo URL</label>
+    <input formControlName="photoUrl" />
+  </div>
+
+  <div>
+    <label>Template ID</label>
+    <input formControlName="templateId" type="number" />
+  </div>
+
+  <!-- Skills -->
+  <div formArrayName="skills">
+    <label>Skills</label>
+    <div
+      *ngFor="let skill of skills.controls; let i = index"
+      [formGroupName]="i"
+    >
+      <input formControlName="name" />
+      <button type="button" (click)="removeSkill(i)">Remove</button>
+    </div>
+    <button type="button" (click)="addSkill()">Add Skill</button>
+  </div>
+
+  <!-- Education -->
+  <div formArrayName="education">
+    <label>Education</label>
+    <div
+      *ngFor="let edu of education.controls; let i = index"
+      [formGroupName]="i"
+    >
+      <input placeholder="Institution" formControlName="institutionName" />
+      <input placeholder="Description" formControlName="description" />
+      <input type="date" formControlName="from" />
+      <input type="date" formControlName="to" />
+      <button type="button" (click)="removeEducation(i)">Remove</button>
+    </div>
+    <button type="button" (click)="addEducation()">Add Education</button>
+  </div>
+
+  <!-- Employment -->
+  <div formArrayName="employment">
+    <label>Employment</label>
+    <div
+      *ngFor="let emp of employment.controls; let i = index"
+      [formGroupName]="i"
+    >
+      <input placeholder="Company" formControlName="companyName" />
+      <input placeholder="Description" formControlName="description" />
+      <input type="date" formControlName="from" />
+      <input type="date" formControlName="to" />
+      <button type="button" (click)="removeEmployment(i)">Remove</button>
+    </div>
+    <button type="button" (click)="addEmployment()">Add Employment</button>
+  </div>
+
+  <button type="submit" [disabled]="cvForm.invalid">Save CV</button>
+</form>

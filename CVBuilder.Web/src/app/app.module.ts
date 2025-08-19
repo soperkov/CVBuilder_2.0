@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -10,6 +11,8 @@ import { CreateCVComponent } from './pages/create-cv/create-cv.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { UserInfoComponent } from './shared/user-info/user-info.component';
+import { AuthPageComponent } from './pages/auth-page/auth-page.component';
+import { CvFormComponent } from './components/cv-form/cv-form.component';
 
 @NgModule({
   declarations: [
@@ -19,10 +22,13 @@ import { UserInfoComponent } from './shared/user-info/user-info.component';
     LoginComponent,
     RegisterComponent,
     UserInfoComponent,
+    AuthPageComponent,
+    CvFormComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
   ],

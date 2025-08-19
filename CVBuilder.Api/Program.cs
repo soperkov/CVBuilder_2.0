@@ -28,6 +28,8 @@ namespace CVBuilder.Api
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ICVService, CVService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
 
             builder.Services.AddScoped<JwtService>();
 
@@ -59,11 +61,13 @@ namespace CVBuilder.Api
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-
             app.UseRouting();
 
             app.UseCors("_myAllowSpecificOrigins");
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

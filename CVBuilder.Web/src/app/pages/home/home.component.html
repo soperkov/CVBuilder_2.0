@@ -1,4 +1,4 @@
-<main class="main">
+<!-- <main class="main">
   <div class="content">
     <div class="left-side">
       <h1>Welcome to CV Builder</h1>
@@ -13,4 +13,26 @@
       </div>
     </div>
   </div>
-</main>
+</main> -->
+
+<div *ngIf="userInfo; else loading">
+  <h2>Welcome, {{ userInfo.firstName }} {{ userInfo.lastName }}</h2>
+  <p>Email: {{ userInfo.email }}</p>
+
+  <h3>Your CVs:</h3>
+  <div *ngIf="userInfo.cvs.length > 0; else noCVs">
+    <div *ngFor="let cv of userInfo.cvs" style="margin-bottom: 20px">
+      <h4>{{ cv.fullName }}</h4>
+      <p><strong>Created:</strong> {{ cv.createdAt | date }}</p>
+      <p><strong>Template:</strong> {{ cv.templateName }}</p>
+      <p><strong>Skills:</strong> {{ cv.skills.join(", ") }}</p>
+    </div>
+  </div>
+  <ng-template #noCVs><p>You have not created any CVs yet.</p></ng-template>
+</div>
+
+<ng-template #loading>
+  <p>Loading user data...</p>
+</ng-template>
+
+<div *ngIf="errorMessage" style="color: red">{{ errorMessage }}</div>
