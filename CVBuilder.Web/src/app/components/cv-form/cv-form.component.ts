@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CVService } from '../../services/cv.service';
 
 @Component({
   selector: 'app-cv-form',
@@ -12,7 +13,7 @@ export class CvFormComponent implements OnInit {
 
   @Output() formSubmitted = new EventEmitter<number>();
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private cvService: CVService) {}
 
   ngOnInit(): void {
     this.cvForm = this.fb.group({
@@ -87,6 +88,16 @@ export class CvFormComponent implements OnInit {
   onSubmit(): void {
     if (this.cvForm.invalid) return;
 
-    console.log(this.cvForm.value);
+    const formData = this.cvForm.value;
+
+    this.cvService.createCv(formData).subscribe({
+      next: (response) => {
+        console.log('CV saved!', response);
+        // možeš redirectati ili prikazati poruku
+      },
+      error: (error) => {
+        console.error('Failed to save CV', error);
+      },
+    });
   }
 }
