@@ -13,6 +13,7 @@
         {
             var cv = new CVModel
             {
+                CVName = dto.CVName,
                 FullName = dto.FullName,
                 DateOfBirth = dto.DateOfBirth,
                 PhoneNumber = dto.PhoneNumber,
@@ -88,6 +89,7 @@
 
             if (cv == null) return false;
 
+            cv.CVName = dto.CVName;
             cv.FullName = dto.FullName;
             cv.DateOfBirth = dto.DateOfBirth;
             cv.PhoneNumber = dto.PhoneNumber;
@@ -176,6 +178,7 @@
         private static CVSummaryDto MapToDto(CVModel cv) => new()
         {
             Id = cv.Id,
+            CVName = cv.CVName,
             FullName = cv.FullName,
             DateOfBirth = cv.DateOfBirth,
             PhoneNumber = cv.PhoneNumber,

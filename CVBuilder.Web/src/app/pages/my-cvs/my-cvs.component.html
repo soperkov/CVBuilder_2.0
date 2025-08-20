@@ -1,0 +1,15 @@
+<h2>My CVs</h2>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="cvs.length === 0 && !loading">
+  <p>You have not created any CVs yet.</p>
+</div>
+
+<div *ngFor="let cv of cvs">
+  <h3>{{ cv.fullName }}</h3>
+  <p><strong>Template:</strong> {{ cv.templateName }}</p>
+  <p><strong>Created at:</strong> {{ cv.createdAt | date }}</p>
+  <button (click)="viewDetails(cv.id)">View Details</button>
+</div>

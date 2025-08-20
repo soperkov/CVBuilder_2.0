@@ -8,7 +8,7 @@ import { CVService } from '../../services/cv.service';
   templateUrl: './cv-form.component.html',
   styleUrl: './cv-form.component.css',
 })
-export class CvFormComponent implements OnInit {
+export class CVFormComponent implements OnInit {
   cvForm!: FormGroup;
 
   @Output() formSubmitted = new EventEmitter<number>();
@@ -90,7 +90,7 @@ export class CvFormComponent implements OnInit {
 
     const formData = this.cvForm.value;
 
-    this.cvService.createCv(formData).subscribe({
+    this.cvService.createCV(formData).subscribe({
       next: (response) => {
         console.log('CV saved!', response);
         // možeš redirectati ili prikazati poruku

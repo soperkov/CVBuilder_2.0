@@ -15,14 +15,40 @@
     </div>
   </div>
 
-  <div>
-    <label>Password</label>
-    <input type="password" formControlName="password" />
-    <div
-      *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']"
-      style="color: red"
-    >
-      Password is required.
+  <div class="form-group">
+    <div class="password-wrapper">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        [type]="showPassword ? 'text' : 'password'"
+        formControlName="password"
+        placeholder="Password"
+        class="password-input"
+      />
+
+      <button
+        type="button"
+        class="eye-button"
+        (mousedown)="showPassword = true"
+        (mouseup)="showPassword = false"
+        (mouseleave)="showPassword = false"
+        aria-label="Toggle password visibility"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="eye-icon"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 0c0 2.5-4 7-9 7s-9-4.5-9-7 4-7 9-7 9 4.5 9 7z"
+          />
+        </svg>
+      </button>
     </div>
   </div>
 

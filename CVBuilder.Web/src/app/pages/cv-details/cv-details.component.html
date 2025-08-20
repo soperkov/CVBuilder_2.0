@@ -1,0 +1,34 @@
+<h2>CV Details</h2>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<div *ngIf="cv">
+  <h3>{{ cv.fullName }}</h3>
+  <p><strong>Date of Birth:</strong> {{ cv.dateOfBirth }}</p>
+  <p><strong>Email:</strong> {{ cv.email }}</p>
+  <p><strong>Phone:</strong> {{ cv.phoneNumber }}</p>
+  <p><strong>About Me:</strong> {{ cv.aboutMe }}</p>
+
+  <h4>Skills</h4>
+  <ul>
+    <li *ngFor="let skill of cv.skills">{{ skill }}</li>
+  </ul>
+
+  <h4>Education</h4>
+  <ul>
+    <li *ngFor="let edu of cv.education">
+      {{ edu.institutionName }} ({{ edu.from }} - {{ edu.to }})<br />
+      {{ edu.description }}
+    </li>
+  </ul>
+
+  <h4>Employment</h4>
+  <ul>
+    <li *ngFor="let emp of cv.employment">
+      {{ emp.companyName }} ({{ emp.from }} - {{ emp.to }})<br />
+      {{ emp.description }}
+    </li>
+  </ul>
+</div>
+<button [routerLink]="['/cv/edit', cv.id]">Edit</button>

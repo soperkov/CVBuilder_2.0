@@ -17,18 +17,8 @@
 
 <div *ngIf="userInfo; else loading">
   <h2>Welcome, {{ userInfo.firstName }} {{ userInfo.lastName }}</h2>
-  <p>Email: {{ userInfo.email }}</p>
-
-  <h3>Your CVs:</h3>
-  <div *ngIf="userInfo.cvs.length > 0; else noCVs">
-    <div *ngFor="let cv of userInfo.cvs" style="margin-bottom: 20px">
-      <h4>{{ cv.fullName }}</h4>
-      <p><strong>Created:</strong> {{ cv.createdAt | date }}</p>
-      <p><strong>Template:</strong> {{ cv.templateName }}</p>
-      <p><strong>Skills:</strong> {{ cv.skills.join(", ") }}</p>
-    </div>
-  </div>
-  <ng-template #noCVs><p>You have not created any CVs yet.</p></ng-template>
+  <button (click)="createCV()">Create New CV</button>
+  <button (click)="goToMyCVs()">Go to My CVs</button>
 </div>
 
 <ng-template #loading>

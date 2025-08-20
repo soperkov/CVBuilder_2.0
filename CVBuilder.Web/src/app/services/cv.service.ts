@@ -10,7 +10,28 @@ export class CVService {
 
   constructor(private http: HttpClient) {}
 
-  createCv(data: any): Observable<any> {
+  // Create CV
+  createCV(data: any): Observable<any> {
     return this.http.post(this.apiUrl, data);
+  }
+
+  // Get all CVs for the logged-in user
+  getMyCVs(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
+
+  // Get a specific CV by ID
+  getCVById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  }
+
+  // Update existing CV by ID
+  updateCV(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, data);
+  }
+
+  // Delete CV by ID
+  deleteCV(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

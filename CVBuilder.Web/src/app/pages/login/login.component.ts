@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string | null = null;
+  showPassword: boolean = false;
 
   @Output() switchToRegister = new EventEmitter<void>();
 
@@ -36,6 +37,7 @@ export class LoginComponent {
       error: (error) => {
         if (error.error && error.error.title) {
           this.errorMessage = error.error.title;
+          this.loginForm.get('password')?.reset();
         } else {
           this.errorMessage = 'Unexpected error occurred.';
         }
