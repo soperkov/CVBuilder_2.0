@@ -1,0 +1,9 @@
+<div class="modal-backdrop" (click)="cancel()"></div>
+<div class="modal">
+  <h3>Enter CV name</h3>
+  <input type="text" [(ngModel)]="cvName" placeholder="CV name" />
+  <div class="modal-actions">
+    <button (click)="confirm()">Save</button>
+    <button (click)="cancel()">Cancel</button>
+  </div>
+</div>

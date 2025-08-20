@@ -1,1 +1,12 @@
-<app-cv-form (formSubmitted)="onFormSubmitted($event)"></app-cv-form>
+<app-cv-form
+  (formSubmitted)="onFormSubmitted($event)"
+  (formStatusChanged)="onFormValidityChanged($event)"
+></app-cv-form>
+<button (click)="openModal('save')" [disabled]="!isFormValid">Save</button>
+<button (click)="openModal('saveAs')" [disabled]="!isFormValid">Save As</button>
+
+<app-cv-name-modal
+  *ngIf="showModal"
+  (onSave)="handleModalSave($event)"
+  (onCancel)="closeModal()"
+></app-cv-name-modal>

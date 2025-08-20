@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CVService } from '../../services/cv.service';
 
@@ -7,19 +7,20 @@ import { CVService } from '../../services/cv.service';
   selector: 'app-cv-edit',
   standalone: false,
   templateUrl: './cv-edit.component.html',
-  styleUrl: './cv-edit.component.css',
+  styleUrls: ['./cv-edit.component.css'],
 })
-export class CVEditComponent {
+export class CVEditComponent implements OnInit {
   cvForm!: FormGroup;
   cvId!: number;
   isLoading = true;
   errorMessage = '';
+  showModal = false;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder,
-    private cvService: CVService,
-    private router: Router
+    private cvService: CVService
   ) {}
 
   ngOnInit(): void {
@@ -36,6 +37,10 @@ export class CVEditComponent {
         this.isLoading = false;
       },
     });
+  }
+
+  get isFormModified(): boolean {
+    return this.cvForm.dirty && this.cvForm.valid;
   }
 
   initializeForm(): void {
@@ -64,61 +69,128 @@ export class CVEditComponent {
       cvName: cv.cvName || '',
     });
 
-    const skills = this.cvForm.get('skills') as FormArray;
-    cv.skills.forEach((skill: any) =>
-      skills.push(this.fb.group({ name: [skill] }))
+    cv.skills?.forEach((skill: any) =>
+      this.skills.push(this.fb.group({ name: [skill, Validators.required] }))
     );
 
-    const education = this.cvForm.get('education') as FormArray;
-    cv.education.forEach((edu: any) =>
-      education.push(
+    cv.education?.forEach((edu: any) =>
+      this.education.push(
         this.fb.group({
           id: [edu.id],
-          institutionName: [edu.institutionName],
+          institutionName: [edu.institutionName, Validators.required],
           description: [edu.description],
-          from: [edu.from],
-          to: [edu.to],
+          from: [edu.from, Validators.required],
+          to: [edu.to, Validators.required],
         })
       )
     );
 
-    const employment = this.cvForm.get('employment') as FormArray;
-    cv.employment.forEach((emp: any) =>
-      employment.push(
+    cv.employment?.forEach((emp: any) =>
+      this.employment.push(
         this.fb.group({
           id: [emp.id],
-          companyName: [emp.companyName],
+          companyName: [emp.companyName, Validators.required],
           description: [emp.description],
-          from: [emp.from],
-          to: [emp.to],
+          from: [emp.from, Validators.required],
+          to: [emp.to, Validators.required],
         })
       )
     );
   }
 
+  // === FormArray helpers ===
+  get skills(): FormArray {
+    return this.cvForm.get('skills') as FormArray;
+  }
+
+  addSkill(): void {
+    this.skills.push(this.fb.group({ name: ['', Validators.required] }));
+  }
+
+  removeSkill(index: number): void {
+    this.skills.removeAt(index);
+    this.cvForm.markAsDirty();
+    this.cvForm.updateValueAndValidity();
+  }
+
+  get education(): FormArray {
+    return this.cvForm.get('education') as FormArray;
+  }
+
+  addEducation(): void {
+    this.education.push(
+      this.fb.group({
+        institutionName: ['', Validators.required],
+        description: [''],
+        from: ['', Validators.required],
+        to: ['', Validators.required],
+      })
+    );
+  }
+
+  removeEducation(index: number): void {
+    this.education.removeAt(index);
+    this.cvForm.markAsDirty();
+    this.cvForm.updateValueAndValidity();
+  }
+
+  get employment(): FormArray {
+    return this.cvForm.get('employment') as FormArray;
+  }
+
+  addEmployment(): void {
+    this.employment.push(
+      this.fb.group({
+        companyName: ['', Validators.required],
+        description: [''],
+        from: ['', Validators.required],
+        to: ['', Validators.required],
+      })
+    );
+  }
+
+  removeEmployment(index: number): void {
+    this.employment.removeAt(index);
+    this.cvForm.markAsDirty();
+    this.cvForm.updateValueAndValidity();
+  }
+
+  // === Update CV ===
   onSubmit(): void {
     if (this.cvForm.invalid) return;
 
     this.cvService.updateCV(this.cvId, this.cvForm.value).subscribe({
-      next: () => {
-        this.router.navigate(['/my-cvs']);
-      },
-      error: () => {
-        this.errorMessage = 'Failed to update CV.';
-      },
+      next: () => this.router.navigate(['/my-cvs']),
+      error: () => (this.errorMessage = 'Failed to update CV.'),
     });
   }
 
-  // Helpers to access FormArrays
-  get skills() {
-    return this.cvForm.get('skills') as FormArray;
+  // === Save As Logic ===
+  openModal(): void {
+    this.showModal = true;
   }
 
-  get education() {
-    return this.cvForm.get('education') as FormArray;
+  closeModal(): void {
+    this.showModal = false;
   }
 
-  get employment() {
-    return this.cvForm.get('employment') as FormArray;
+  handleSaveAs(newName: string): void {
+    const trimmedName = newName.trim();
+    if (!this.cvForm.valid || !trimmedName) return;
+
+    this.cvForm.patchValue({ cvName: trimmedName });
+
+    const formData = this.cvForm.value;
+
+    this.cvService.createCV(formData).subscribe({
+      next: (id) => {
+        this.router.navigate(['/cv', id]);
+        this.closeModal();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to create new CV.';
+        this.closeModal();
+      },
+    });
   }
 }

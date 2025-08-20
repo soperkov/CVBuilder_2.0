@@ -8,8 +8,10 @@
 </div>
 
 <div *ngFor="let cv of cvs">
+  <h2>{{ cv.cvName }}</h2>
   <h3>{{ cv.fullName }}</h3>
   <p><strong>Template:</strong> {{ cv.templateName }}</p>
   <p><strong>Created at:</strong> {{ cv.createdAt | date }}</p>
   <button (click)="viewDetails(cv.id)">View Details</button>
+  <button (click)="editCV(cv.id)">Edit</button>
 </div>

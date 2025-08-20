@@ -24,6 +24,7 @@ import { UserInfoComponent } from './shared/user-info/user-info.component';
 import { CVEditComponent } from './pages/cv-edit/cv-edit.component';
 import { RedirectComponent } from './pages/redirect/redirect.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { CvNameModalComponent } from './shared/cv-name-modal/cv-name-modal.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { MainLayoutComponent } from './layout/main-layout/main-layout.component'
     CVEditComponent,
     RedirectComponent,
     MainLayoutComponent,
+    CvNameModalComponent,
   ],
   imports: [
     BrowserModule,

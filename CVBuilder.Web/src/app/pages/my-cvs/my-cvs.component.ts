@@ -31,4 +31,8 @@ export class MyCVsComponent implements OnInit {
   viewDetails(id: number) {
     this.router.navigate(['/cv', id]);
   }
+
+  editCV(id: number) {
+    this.router.navigate(['/cv/edit', id]);
+  }
 }

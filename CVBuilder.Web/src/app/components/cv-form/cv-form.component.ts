@@ -11,6 +11,7 @@ import { CVService } from '../../services/cv.service';
 export class CVFormComponent implements OnInit {
   cvForm!: FormGroup;
 
+  @Output() formStatusChanged = new EventEmitter<boolean>();
   @Output() formSubmitted = new EventEmitter<number>();
 
   constructor(private fb: FormBuilder, private cvService: CVService) {}
@@ -24,9 +25,12 @@ export class CVFormComponent implements OnInit {
       aboutMe: [''],
       photoUrl: [''],
       templateId: [null],
-      skills: this.fb.array([]),
-      education: this.fb.array([]),
-      employment: this.fb.array([]),
+      skills: this.fb.array([], []),
+      education: this.fb.array([], []),
+      employment: this.fb.array([], []),
+    });
+    this.cvForm.statusChanges.subscribe(() => {
+      this.formStatusChanged.emit(this.cvForm.valid);
     });
   }
 
