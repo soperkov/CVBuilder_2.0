@@ -2,6 +2,7 @@
   (formSubmitted)="onFormSubmitted($event)"
   (formStatusChanged)="onFormValidityChanged($event)"
 ></app-cv-form>
+
 <button (click)="openModal('save')" [disabled]="!isFormValid">Save</button>
 <button (click)="openModal('saveAs')" [disabled]="!isFormValid">Save As</button>
 

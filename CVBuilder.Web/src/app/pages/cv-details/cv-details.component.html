@@ -3,21 +3,24 @@
 <div *ngIf="loading">Loading...</div>
 <div *ngIf="error">{{ error }}</div>
 
-<div *ngIf="cv">
-  <h3>{{ cv.fullName }}</h3>
-  <p><strong>Date of Birth:</strong> {{ cv.dateOfBirth }}</p>
-  <p><strong>Email:</strong> {{ cv.email }}</p>
-  <p><strong>Phone:</strong> {{ cv.phoneNumber }}</p>
-  <p><strong>About Me:</strong> {{ cv.aboutMe }}</p>
+<ng-container *ngIf="cv as model">
+  <h3>{{ model.fullName }}</h3>
+  <p>
+    <strong>Created at:</strong> {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
+  </p>
+  <p><strong>Date of Birth:</strong> {{ model.dateOfBirth }}</p>
+  <p><strong>Email:</strong> {{ model.email }}</p>
+  <p><strong>Phone:</strong> {{ model.phoneNumber }}</p>
+  <p><strong>About Me:</strong> {{ model.aboutMe }}</p>
 
   <h4>Skills</h4>
   <ul>
-    <li *ngFor="let skill of cv.skills">{{ skill }}</li>
+    <li *ngFor="let s of cv?.skills">{{ s.name }}</li>
   </ul>
 
   <h4>Education</h4>
   <ul>
-    <li *ngFor="let edu of cv.education">
+    <li *ngFor="let edu of model.education">
       {{ edu.institutionName }} ({{ edu.from }} - {{ edu.to }})<br />
       {{ edu.description }}
     </li>
@@ -25,10 +28,21 @@
 
   <h4>Employment</h4>
   <ul>
-    <li *ngFor="let emp of cv.employment">
+    <li *ngFor="let emp of model.employment">
       {{ emp.companyName }} ({{ emp.from }} - {{ emp.to }})<br />
       {{ emp.description }}
     </li>
   </ul>
-</div>
-<button [routerLink]="['/cv/edit', cv.id]">Edit</button>
+
+  <div class="actions">
+    <button [routerLink]="['/cv/edit', cvId]">Edit</button>
+    <button (click)="openDeleteModal()">Delete</button>
+  </div>
+</ng-container>
+
+<app-delete-confirm-modal
+  *ngIf="showDeleteModal"
+  [count]="1"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-delete-confirm-modal>

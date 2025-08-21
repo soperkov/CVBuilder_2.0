@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CVService } from '../../services/cv.service';
+import { Cv, CreateCvDto, UpdateCvDto } from '../../models';
 
 @Component({
   selector: 'app-cv-edit',
@@ -14,7 +15,9 @@ export class CVEditComponent implements OnInit {
   cvId!: number;
   isLoading = true;
   errorMessage = '';
-  showModal = false;
+  showSaveModal = false;
+  showDeleteModal = false;
+  isDeleting = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,12 +27,15 @@ export class CVEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cvId = Number(this.route.snapshot.paramMap.get('id'));
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.cvId = Number(idParam);
+
     this.initializeForm();
 
     this.cvService.getCVById(this.cvId).subscribe({
-      next: (cv) => {
+      next: (cv: Cv) => {
         this.patchForm(cv);
+        this.cvForm.markAsPristine();
         this.isLoading = false;
       },
       error: () => {
@@ -46,78 +52,107 @@ export class CVEditComponent implements OnInit {
   initializeForm(): void {
     this.cvForm = this.fb.group({
       fullName: ['', Validators.required],
-      dateOfBirth: ['', Validators.required],
+      dateOfBirth: ['', Validators.required], // "yyyy-MM-dd"
       phoneNumber: [''],
       email: ['', [Validators.required, Validators.email]],
       aboutMe: [''],
       photoUrl: [''],
       cvName: [''],
+      templateId: [null],
       skills: this.fb.array([]),
       education: this.fb.array([]),
       employment: this.fb.array([]),
     });
   }
 
-  patchForm(cv: any): void {
+  private toDateOnly(value?: string | null): string {
+    if (!value) return '';
+    return value.length >= 10 ? value.substring(0, 10) : value;
+  }
+
+  patchForm(cv: Cv): void {
     this.cvForm.patchValue({
-      fullName: cv.fullName,
-      dateOfBirth: cv.dateOfBirth,
-      phoneNumber: cv.phoneNumber,
-      email: cv.email,
-      aboutMe: cv.aboutMe,
-      photoUrl: cv.photoUrl,
-      cvName: cv.cvName || '',
+      fullName: cv.fullName ?? '',
+      dateOfBirth: this.toDateOnly(cv.dateOfBirth ?? null),
+      phoneNumber: cv.phoneNumber ?? '',
+      email: cv.email ?? '',
+      aboutMe: cv.aboutMe ?? '',
+      photoUrl: cv.photoUrl ?? '',
+      cvName: cv.cvName ?? '',
+      templateId: cv.templateId ?? null,
     });
 
-    cv.skills?.forEach((skill: any) =>
-      this.skills.push(this.fb.group({ name: [skill, Validators.required] }))
-    );
+    const skillsArr = Array.isArray(cv.skills) ? cv.skills : [];
+    skillsArr.forEach((s: any) => {
+      const name = typeof s === 'string' ? s : s?.name ?? '';
+      this.skills.push(this.fb.group({ name: [name, Validators.required] }));
+    });
 
-    cv.education?.forEach((edu: any) =>
+    // Education
+    (cv.education || []).forEach((edu) =>
       this.education.push(
         this.fb.group({
           id: [edu.id],
           institutionName: [edu.institutionName, Validators.required],
-          description: [edu.description],
-          from: [edu.from, Validators.required],
-          to: [edu.to, Validators.required],
+          description: [edu.description ?? ''],
+          from: [this.toDateOnly(edu.from), Validators.required],
+          to: [this.toDateOnly(edu.to), Validators.required],
         })
       )
     );
 
-    cv.employment?.forEach((emp: any) =>
+    // Employment
+    (cv.employment || []).forEach((emp) =>
       this.employment.push(
         this.fb.group({
           id: [emp.id],
           companyName: [emp.companyName, Validators.required],
-          description: [emp.description],
-          from: [emp.from, Validators.required],
-          to: [emp.to, Validators.required],
+          description: [emp.description ?? ''],
+          from: [this.toDateOnly(emp.from), Validators.required],
+          to: [this.toDateOnly(emp.to), Validators.required],
         })
       )
     );
   }
 
-  // === FormArray helpers ===
+  // ===== FormArray helpers =====
   get skills(): FormArray {
     return this.cvForm.get('skills') as FormArray;
   }
-
-  addSkill(): void {
-    this.skills.push(this.fb.group({ name: ['', Validators.required] }));
+  get education(): FormArray {
+    return this.cvForm.get('education') as FormArray;
+  }
+  get employment(): FormArray {
+    return this.cvForm.get('employment') as FormArray;
   }
 
+  // ===== Can-add getters =====
+  get canAddSkill(): boolean {
+    const arr = this.skills;
+    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  }
+  get canAddEducation(): boolean {
+    const arr = this.education;
+    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  }
+  get canAddEmployment(): boolean {
+    const arr = this.employment;
+    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  }
+
+  // ===== Add / Remove =====
+  addSkill(): void {
+    if (!this.canAddSkill) return;
+    this.skills.push(this.fb.group({ name: ['', Validators.required] }));
+  }
   removeSkill(index: number): void {
     this.skills.removeAt(index);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  get education(): FormArray {
-    return this.cvForm.get('education') as FormArray;
-  }
-
   addEducation(): void {
+    if (!this.canAddEducation) return;
     this.education.push(
       this.fb.group({
         institutionName: ['', Validators.required],
@@ -127,18 +162,14 @@ export class CVEditComponent implements OnInit {
       })
     );
   }
-
   removeEducation(index: number): void {
     this.education.removeAt(index);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  get employment(): FormArray {
-    return this.cvForm.get('employment') as FormArray;
-  }
-
   addEmployment(): void {
+    if (!this.canAddEmployment) return;
     this.employment.push(
       this.fb.group({
         companyName: ['', Validators.required],
@@ -148,48 +179,127 @@ export class CVEditComponent implements OnInit {
       })
     );
   }
-
   removeEmployment(index: number): void {
     this.employment.removeAt(index);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  // === Update CV ===
+  // ===== Build DTOs =====
+  private buildUpdateDto(): UpdateCvDto {
+    const v = this.cvForm.value;
+    const dto: UpdateCvDto = {
+      cvName: v.cvName ?? '',
+      fullName: v.fullName ?? '',
+      dateOfBirth: v.dateOfBirth ?? null, // "yyyy-MM-dd"
+      phoneNumber: v.phoneNumber ?? '',
+      email: v.email ?? '',
+      aboutMe: v.aboutMe ?? '',
+      photoUrl: v.photoUrl ?? '',
+      templateId: v.templateId ?? null,
+      skills: (v.skills || []).map((s: any) => ({ name: s.name })),
+      education: (v.education || []).map((e: any) => ({
+        id: e.id, // backend može iskoristiti
+        institutionName: e.institutionName,
+        description: e.description ?? '',
+        from: e.from,
+        to: e.to,
+      })),
+      employment: (v.employment || []).map((e: any) => ({
+        id: e.id,
+        companyName: e.companyName,
+        description: e.description ?? '',
+        from: e.from,
+        to: e.to,
+      })),
+    };
+    return dto;
+  }
+
+  private buildCreateDto(withName?: string): CreateCvDto {
+    const v = this.cvForm.value;
+    const dto: CreateCvDto = {
+      cvName: (withName ?? v.cvName) || '',
+      fullName: v.fullName ?? '',
+      dateOfBirth: v.dateOfBirth ?? null, // "yyyy-MM-dd"
+      phoneNumber: v.phoneNumber ?? '',
+      email: v.email ?? '',
+      aboutMe: v.aboutMe ?? '',
+      photoUrl: v.photoUrl ?? '',
+      templateId: v.templateId ?? null,
+      skills: (v.skills || []).map((s: any) => ({ name: s.name })),
+      education: (v.education || []).map((e: any) => ({
+        id: e.id,
+        institutionName: e.institutionName,
+        description: e.description ?? '',
+        from: e.from,
+        to: e.to,
+      })),
+      employment: (v.employment || []).map((e: any) => ({
+        id: e.id,
+        companyName: e.companyName,
+        description: e.description ?? '',
+        from: e.from,
+        to: e.to,
+      })),
+    };
+    return dto;
+  }
+
+  // ===== Update CV =====
   onSubmit(): void {
     if (this.cvForm.invalid) return;
 
-    this.cvService.updateCV(this.cvId, this.cvForm.value).subscribe({
+    const dto = this.buildUpdateDto();
+
+    this.cvService.updateCV(this.cvId, dto).subscribe({
       next: () => this.router.navigate(['/my-cvs']),
       error: () => (this.errorMessage = 'Failed to update CV.'),
     });
   }
 
-  // === Save As Logic ===
-  openModal(): void {
-    this.showModal = true;
+  // ===== Save As (modal) =====
+  openSaveModal(): void {
+    this.showSaveModal = true;
   }
-
-  closeModal(): void {
-    this.showModal = false;
+  closeSaveModal(): void {
+    this.showSaveModal = false;
   }
 
   handleSaveAs(newName: string): void {
-    const trimmedName = newName.trim();
+    const trimmedName = (newName || '').trim();
     if (!this.cvForm.valid || !trimmedName) return;
 
-    this.cvForm.patchValue({ cvName: trimmedName });
+    const dto = this.buildCreateDto(trimmedName);
 
-    const formData = this.cvForm.value;
-
-    this.cvService.createCV(formData).subscribe({
+    this.cvService.createCV(dto).subscribe({
       next: (id) => {
         this.router.navigate(['/cv', id]);
-        this.closeModal();
+        this.closeSaveModal();
       },
       error: () => {
         this.errorMessage = 'Failed to create new CV.';
-        this.closeModal();
+        this.closeSaveModal();
+      },
+    });
+  }
+
+  // ===== Delete (modal) =====
+  openDeleteModal() {
+    this.showDeleteModal = true;
+  }
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+  }
+
+  deleteThisCv() {
+    this.isDeleting = true;
+    this.cvService.deleteCV(this.cvId).subscribe({
+      next: () => this.router.navigate(['/my-cvs']),
+      error: () => {
+        this.errorMessage = 'Failed to delete CV.';
+        this.isDeleting = false;
+        this.closeDeleteModal();
       },
     });
   }

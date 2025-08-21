@@ -1,28 +1,59 @@
+// app/services/auth.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models'; // ili '../models/auth' ako ne koristiš barrel
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = 'https://localhost:7123/api/auth';
+  private tokenKey = 'token';
 
   constructor(private http: HttpClient) {}
 
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+  register(data: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
+      tap((res) => {
+        if (res?.token) this.setToken(res.token);
+      })
+    );
   }
 
-  login(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, data);
+  login(data: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
+      tap((res) => {
+        if (res?.token) this.setToken(res.token);
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem(this.tokenKey);
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = this.getToken();
+    if (!token) return false;
+    const exp = this.getTokenExpiration(token);
+    return exp ? Date.now() < exp : true;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  private setToken(token: string): void {
+    localStorage.setItem(this.tokenKey, token);
+  }
+
+  private getTokenExpiration(token: string): number | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1] || '')) as {
+        exp?: number;
+      };
+      return payload?.exp ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
   }
 }

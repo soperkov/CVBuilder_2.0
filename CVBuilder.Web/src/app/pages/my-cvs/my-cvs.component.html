@@ -29,7 +29,6 @@
     *ngFor="let cv of cvs; trackBy: trackById"
     (click)="selectionMode ? toggleItem(cv.id, $event) : viewDetails(cv.id)"
   >
-    <!-- selection circle -->
     <button
       *ngIf="selectionMode"
       type="button"
@@ -44,8 +43,8 @@
       <div class="title">{{ cv.cvName || "(Unnamed CV)" }}</div>
       <div class="subtitle">{{ cv.fullName }}</div>
       <div class="muted">
-        <strong>Template:</strong> {{ cv.templateName }} •
-        <strong>Created:</strong> {{ cv.createdAt | date }}
+        <strong>Template:</strong> {{ cv.templateName || "-" }} •
+        <strong>Created:</strong> {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
       </div>
     </div>
 
@@ -58,7 +57,6 @@
   </div>
 </div>
 
-<!-- Delete confirmation modal -->
 <app-delete-confirm-modal
   *ngIf="showDeleteModal"
   [count]="selectedIds.size"

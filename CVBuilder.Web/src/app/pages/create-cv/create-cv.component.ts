@@ -2,6 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CVService } from '../../services/cv.service';
 import { CVFormComponent } from '../../components/cv-form/cv-form.component';
+import { CreateCvDto } from '../../models';
 
 @Component({
   selector: 'app-create-cv',
@@ -11,14 +12,15 @@ import { CVFormComponent } from '../../components/cv-form/cv-form.component';
 })
 export class CreateCVComponent {
   @ViewChild(CVFormComponent) cvFormComponent!: CVFormComponent;
+
   showModal = false;
   isFormValid = false;
   modalAction: 'save' | 'saveAs' = 'save';
-  lastCVData: any = null;
+  lastCVData: CreateCvDto | null = null;
 
   constructor(private router: Router, private cvService: CVService) {}
 
-  onFormSubmitted(dto: any) {
+  onFormSubmitted(dto: CreateCvDto) {
     this.lastCVData = dto;
     this.openModal('save');
   }
@@ -33,7 +35,7 @@ export class CreateCVComponent {
       return;
     }
 
-    this.lastCVData = this.cvFormComponent.cvForm.value;
+    this.lastCVData = this.cvFormComponent.buildCreateDto();
     this.modalAction = action;
     this.showModal = true;
   }
@@ -43,27 +45,18 @@ export class CreateCVComponent {
   }
 
   handleModalSave(cvName: string) {
-    console.log('[CreateCV] Received cvName:', cvName);
-
     if (!this.lastCVData) return;
 
-    const data = {
+    const data: CreateCvDto = {
       ...this.lastCVData,
-      cvName,
+      cvName: (cvName || '').trim(),
     };
-
-    console.log('[CreateCV] Sending data to backend:', data);
 
     this.showModal = false;
 
     this.cvService.createCV(data).subscribe({
-      next: (id) => {
-        console.log('[CreateCV] CV created with ID:', id);
-        this.router.navigate(['/cv', id]);
-      },
-      error: (err) => {
-        console.error('[CreateCV] Error while saving CV:', err);
-      },
+      next: (id) => this.router.navigate(['/cv', id]),
+      error: (err) => console.error('[CreateCV] Error while saving CV:', err),
     });
   }
 }

@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Cv, CreateCvDto, UpdateCvDto } from '../models';
 
 @Injectable({
   providedIn: 'root',
@@ -11,22 +12,22 @@ export class CVService {
   constructor(private http: HttpClient) {}
 
   // Create CV
-  createCV(data: any): Observable<any> {
-    return this.http.post(this.apiUrl, data);
+  createCV(data: CreateCvDto): Observable<number> {
+    return this.http.post<number>(this.apiUrl, data);
   }
 
   // Get all CVs for the logged-in user
-  getMyCVs(): Observable<any[]> {
+  getMyCVs(): Observable<Cv[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
   // Get a specific CV by ID
-  getCVById(id: number): Observable<any> {
+  getCVById(id: number): Observable<Cv> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   // Update existing CV by ID
-  updateCV(id: number, data: any): Observable<any> {
+  updateCV(id: number, data: UpdateCvDto): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, data);
   }
 
