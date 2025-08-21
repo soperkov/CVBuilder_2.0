@@ -7,5 +7,6 @@
         Task<List<CVSummaryDto>> GetMyCvsAsync(int userId);
         Task<bool> UpdateCvAsync(int id, CreateCVDto dto, int userId);
         Task<bool> DeleteCvAsync(int id, int userId);
+        Task DeleteManyAsync(IEnumerable<int> ids);
     }
 }

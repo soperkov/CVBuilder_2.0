@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -33,5 +33,11 @@ export class CVService {
   // Delete CV by ID
   deleteCV(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  // Multiple delete CV
+  deleteMany(ids: number[]): Observable<void> {
+    const params = new HttpParams().set('ids', ids.join(','));
+    return this.http.delete<void>(`${this.apiUrl}`, { params });
   }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration.UserSecrets;
+﻿using CVBuilder.Api.Services;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace CVBuilder.Api.Controllers
 {
@@ -86,6 +87,47 @@ namespace CVBuilder.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCv(int id)
+        {
+            try
+            {
+                int userId = GetUserId();
+                var deleted = await _cvService.DeleteCvAsync(id, userId);
+                if (!deleted)
+                    return NotFound("CV not found or not yours.");
+                return NoContent(); // 204
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteMany([FromQuery] string ids)
+        {
+            if (string.IsNullOrWhiteSpace(ids))
+                return BadRequest("ids query is required");
+
+            var parsed = ids
+              .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+              .Select(s => int.TryParse(s, out var id) ? id : (int?)null)
+              .Where(id => id.HasValue)
+              .Select(id => id!.Value)
+              .ToArray();
+
+            if (parsed.Length == 0)
+                return BadRequest("No valid ids.");
+
+            await _cvService.DeleteManyAsync(parsed);
+            return NoContent();
         }
 
     }

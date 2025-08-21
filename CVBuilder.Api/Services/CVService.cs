@@ -175,6 +175,18 @@
             return true;
         }
 
+        public async Task DeleteManyAsync(IEnumerable<int> ids)
+        {
+            var idSet = ids?.Distinct().ToList() ?? new List<int>();
+            if (idSet.Count == 0) return;
+
+            var stubs = idSet.Select(id => new CVModel { Id = id }).ToList();
+            _context.AttachRange(stubs);
+            _context.RemoveRange(stubs);
+            await _context.SaveChangesAsync();
+        }
+
+
         private static CVSummaryDto MapToDto(CVModel cv) => new()
         {
             Id = cv.Id,

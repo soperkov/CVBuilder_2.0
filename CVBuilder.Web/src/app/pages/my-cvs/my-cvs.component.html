@@ -1,5 +1,21 @@
 <h2>My CVs</h2>
 
+<div class="toolbar">
+  <button class="select" (click)="toggleSelectionMode()">
+    {{ selectionMode ? "Cancel" : "Select" }}
+  </button>
+
+  <button
+    class="trash"
+    [disabled]="!selectionMode || selectedIds.size === 0"
+    (click)="openDeleteModal()"
+    title="Delete selected"
+    aria-label="Delete selected"
+  >
+    🗑
+  </button>
+</div>
+
 <div *ngIf="loading">Loading...</div>
 <div *ngIf="error" class="error">{{ error }}</div>
 
@@ -7,11 +23,45 @@
   <p>You have not created any CVs yet.</p>
 </div>
 
-<div *ngFor="let cv of cvs">
-  <h2>{{ cv.cvName }}</h2>
-  <h3>{{ cv.fullName }}</h3>
-  <p><strong>Template:</strong> {{ cv.templateName }}</p>
-  <p><strong>Created at:</strong> {{ cv.createdAt | date }}</p>
-  <button (click)="viewDetails(cv.id)">View Details</button>
-  <button (click)="editCV(cv.id)">Edit</button>
+<div class="grid" *ngIf="cvs.length">
+  <div
+    class="card"
+    *ngFor="let cv of cvs; trackBy: trackById"
+    (click)="selectionMode ? toggleItem(cv.id, $event) : viewDetails(cv.id)"
+  >
+    <!-- selection circle -->
+    <button
+      *ngIf="selectionMode"
+      type="button"
+      class="circle"
+      [class.checked]="isSelected(cv.id)"
+      (click)="toggleItem(cv.id, $event)"
+      aria-label="Select CV"
+    ></button>
+
+    <div class="thumb"></div>
+    <div class="meta">
+      <div class="title">{{ cv.cvName || "(Unnamed CV)" }}</div>
+      <div class="subtitle">{{ cv.fullName }}</div>
+      <div class="muted">
+        <strong>Template:</strong> {{ cv.templateName }} •
+        <strong>Created:</strong> {{ cv.createdAt | date }}
+      </div>
+    </div>
+
+    <div class="actions" *ngIf="!selectionMode">
+      <button (click)="$event.stopPropagation(); viewDetails(cv.id)">
+        View
+      </button>
+      <button (click)="$event.stopPropagation(); editCV(cv.id)">Edit</button>
+    </div>
+  </div>
 </div>
+
+<!-- Delete confirmation modal -->
+<app-delete-confirm-modal
+  *ngIf="showDeleteModal"
+  [count]="selectedIds.size"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteModal()"
+></app-delete-confirm-modal>

@@ -25,6 +25,7 @@ import { CVEditComponent } from './pages/cv-edit/cv-edit.component';
 import { RedirectComponent } from './pages/redirect/redirect.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { CvNameModalComponent } from './shared/cv-name-modal/cv-name-modal.component';
+import { DeleteConfirmModalComponent } from './shared/delete-confirm-modal/delete-confirm-modal.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { CvNameModalComponent } from './shared/cv-name-modal/cv-name-modal.compo
     RedirectComponent,
     MainLayoutComponent,
     CvNameModalComponent,
+    DeleteConfirmModalComponent,
   ],
   imports: [
     BrowserModule,

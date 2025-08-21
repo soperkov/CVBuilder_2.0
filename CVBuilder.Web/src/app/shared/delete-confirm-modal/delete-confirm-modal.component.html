@@ -1,0 +1,11 @@
+<div class="modal-backdrop" (click)="cancel.emit()"></div>
+<div class="modal">
+  <h3>
+    Are you sure you want to delete {{ count }} CV{{ count === 1 ? "" : "s" }}?
+  </h3>
+  <p>This action cannot be undone.</p>
+  <div class="modal-actions">
+    <button (click)="confirm.emit()">Delete</button>
+    <button (click)="cancel.emit()">Cancel</button>
+  </div>
+</div>
