@@ -36,11 +36,14 @@ export class MyCVsComponent implements OnInit {
     this.cvService.getMyCVs().subscribe({
       next: (res: Cv[]) => {
         this.cvs = (res || [])
-          .map((cv: any) => ({
-            ...cv,
-            localTime: toLocalDate(cv.createdAt),
-            templateName: cv.templateName ?? cv.template?.name,
-          }))
+          .map((cv: any) => {
+            const when = cv.modifiedAt ?? cv.createdAt;
+            return {
+              ...cv,
+              localTime: toLocalDate(when),
+              templateName: cv.templateName ?? cv.template?.name,
+            };
+          })
           .sort(
             (a, b) =>
               (b.localTime?.getTime() ?? 0) - (a.localTime?.getTime() ?? 0)

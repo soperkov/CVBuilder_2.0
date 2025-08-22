@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Cv, CreateCvDto, UpdateCvDto } from '../models';
 
 @Injectable({
@@ -17,13 +17,27 @@ export class CVService {
   }
 
   // Get all CVs for the logged-in user
-  getMyCVs(): Observable<Cv[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getMyCVs(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl).pipe(
+      map((items) =>
+        (items || []).map((x) => ({
+          ...x,
+          createdAt: x.createdAt ?? x.createdAtUtc ?? null,
+          modifiedAt: x.modifiedAt ?? x.updatedAtUtc ?? null,
+        }))
+      )
+    );
   }
 
   // Get a specific CV by ID
-  getCVById(id: number): Observable<Cv> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getCVById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map((x) => ({
+        ...x,
+        createdAt: x.createdAt ?? x.createdAtUtc ?? null,
+        modifiedAt: x.modifiedAt ?? x.updatedAtUtc ?? null,
+      }))
+    );
   }
 
   // Update existing CV by ID

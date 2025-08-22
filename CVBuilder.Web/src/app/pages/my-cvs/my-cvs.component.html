@@ -44,7 +44,8 @@
       <div class="subtitle">{{ cv.fullName }}</div>
       <div class="muted">
         <strong>Template:</strong> {{ cv.templateName || "-" }} •
-        <strong>Created:</strong> {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
+        <strong>Created/Modified:</strong>
+        {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
       </div>
     </div>
 

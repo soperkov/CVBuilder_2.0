@@ -21,5 +21,6 @@
         public int? TemplateId { get; set; }
         public TemplateModel? Template { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public DateTime UpdatedAtUtc { get; set; }
     }
 }

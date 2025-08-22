@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import type { User } from './user.model';
 import type { Template } from './template.model';
 import type { Skill } from './skill.model';
@@ -27,6 +28,7 @@ export interface Cv {
   template?: Template | null;
 
   createdAtUtc: string;
+  updatedAtUtc: string;
 }
 
 export interface CvListItem {
@@ -36,6 +38,7 @@ export interface CvListItem {
   templateId?: number | null;
   template?: Pick<Template, 'id' | 'name'> | null;
   createdAtUtc: string;
+  modifiedAt?: string;
 }
 
 export interface CreateCvDto {

@@ -5,7 +5,10 @@ import { CVService } from '../../services/cv.service';
 import { Cv } from '../../models';
 import { toLocalDate } from '../../utils/date.utils';
 
-type CvDisplay = Cv & { localTime: Date | null };
+type CvDisplay = Cv & {
+  localCreated: Date | null;
+  localModified: Date | null;
+};
 
 @Component({
   selector: 'app-cv-details',
@@ -44,11 +47,13 @@ export class CVDetailsComponent implements OnInit {
               typeof s === 'string' ? { name: s } : s
             )
           : [];
-
+        const created = res.createdAt ?? res.createdAtUtc ?? null;
+        const modified = res.modifiedAt ?? res.updatedAtUtc ?? created;
         this.cv = {
           ...res,
           skills: skillObjs,
-          localTime: toLocalDate(res.createdAt), // ključ je createdAt
+          localCreated: toLocalDate(created),
+          localModified: toLocalDate(modified),
         } as CvDisplay;
 
         this.loading = false;

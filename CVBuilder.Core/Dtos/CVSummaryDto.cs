@@ -13,6 +13,7 @@
 
         public string TemplateName { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public List<string> Skills { get; set; }
         public List<EducationEntryDto>? Education { get; set; }

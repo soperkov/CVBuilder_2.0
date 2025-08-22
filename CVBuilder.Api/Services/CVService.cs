@@ -1,4 +1,6 @@
-﻿namespace CVBuilder.Api.Services
+﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
+
+namespace CVBuilder.Api.Services
 {
     public class CVService : ICVService
     {
@@ -21,6 +23,7 @@
                 AboutMe = dto.AboutMe,
                 PhotoUrl = dto.PhotoUrl,
                 CreatedAtUtc = DateTime.UtcNow,
+                UpdatedAtUtc = DateTime.UtcNow,
                 CreatedByUser = userId,
                 TemplateId = dto.TemplateId,
 
@@ -97,6 +100,7 @@
             cv.AboutMe = dto.AboutMe;
             cv.PhotoUrl = dto.PhotoUrl;
             cv.TemplateId = dto.TemplateId;
+            cv.UpdatedAtUtc = DateTime.UtcNow;
 
             _context.Skills.RemoveRange(cv.Skills);
             cv.Skills = dto.Skills.Select(s => new SkillModel { Name = s.Name }).ToList();
@@ -198,6 +202,7 @@
             AboutMe = cv.AboutMe,
             PhotoUrl = cv.PhotoUrl,
             CreatedAt = cv.CreatedAtUtc,
+            UpdatedAt = cv.UpdatedAtUtc,
             TemplateName = cv.Template?.Name ?? "(unknown)",
             Skills = cv.Skills.Select(s => s.Name).ToList(),
             Education = cv.Education.Select(e => new EducationEntryDto
