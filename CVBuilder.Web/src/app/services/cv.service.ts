@@ -2,23 +2,24 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Cv, CreateCvDto, UpdateCvDto } from '../models';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CVService {
-  private apiUrl = 'https://localhost:7123/api/cv';
+  private base = `${environment.apiBaseUrl}/cv`;
 
   constructor(private http: HttpClient) {}
 
   // Create CV
   createCV(data: CreateCvDto): Observable<number> {
-    return this.http.post<number>(this.apiUrl, data);
+    return this.http.post<number>(this.base, data);
   }
 
   // Get all CVs for the logged-in user
   getMyCVs(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl).pipe(
+    return this.http.get<any[]>(this.base).pipe(
       map((items) =>
         (items || []).map((x) => ({
           ...x,
@@ -31,7 +32,7 @@ export class CVService {
 
   // Get a specific CV by ID
   getCVById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<any>(`${this.base}/${id}`).pipe(
       map((x) => ({
         ...x,
         createdAt: x.createdAt ?? x.createdAtUtc ?? null,
@@ -42,17 +43,24 @@ export class CVService {
 
   // Update existing CV by ID
   updateCV(id: number, data: UpdateCvDto): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, data);
+    return this.http.put(`${this.base}/${id}`, data);
   }
 
   // Delete CV by ID
   deleteCV(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.base}/${id}`);
   }
 
   // Multiple delete CV
   deleteMany(ids: number[]): Observable<void> {
     const params = new HttpParams().set('ids', ids.join(','));
-    return this.http.delete<void>(`${this.apiUrl}`, { params });
+    return this.http.delete<void>(`${this.base}`, { params });
+  }
+
+  downloadPdf(id: number) {
+    return this.http.get(`${this.base}/${id}/pdf`, {
+      observe: 'response',
+      responseType: 'blob',
+    });
   }
 }

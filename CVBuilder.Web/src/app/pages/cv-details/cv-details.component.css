@@ -1,0 +1,97 @@
+.cv-container.no-template {
+  display: flex;
+  gap: 16px;
+  max-width: 960px;
+  margin: 16px auto;
+  background: #fff;
+  border: 1px solid #e5e7eb; /* light gray */
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #111827; /* gray-900 */
+}
+
+.cv-container.no-template .sidebar {
+  flex: 0 0 260px;
+  padding: 16px;
+  background: #f8fafc; /* gray-50 */
+  border-right: 1px solid #eef2f7;
+}
+
+.cv-container.no-template .main-content {
+  flex: 1;
+  padding: 16px 20px;
+}
+
+.cv-container.no-template .full-name {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #0f172a; /* slate-900 */
+}
+
+.cv-container.no-template h4 {
+  margin: 20px 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #374151; /* gray-700 */
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 4px;
+}
+
+.cv-container.no-template p {
+  margin: 0 0 8px;
+}
+
+.cv-container.no-template ul {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.cv-container.no-template .employment li,
+.cv-container.no-template .education li {
+  margin-bottom: 10px;
+}
+
+.cv-container.no-template .skills {
+  list-style: none;
+  padding: 0;
+}
+.cv-container.no-template .skills li::before {
+  content: "•";
+  margin-right: 8px;
+  color: #2563eb; /* blue-600 */
+}
+
+.cv-container.no-template .profile-photo {
+  width: 120px;
+  height: 120px;
+  display: block;
+  margin: 0 auto 12px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.cv-container.no-template .profile-photo-placeholder {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  margin: 0 auto 12px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e5e7eb; /* gray-200 */
+  color: #6b7280; /* gray-500 */
+  font-size: 28px;
+}
+
+.cv-container.no-template .meta-info {
+  font-size: 12px;
+  color: #6b7280; /* gray-500 */
+  text-align: right;
+  margin-bottom: 12px;
+}

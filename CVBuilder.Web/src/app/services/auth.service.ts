@@ -1,18 +1,18 @@
-// app/services/auth.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models'; // ili '../models/auth' ako ne koristiš barrel
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'https://localhost:7123/api/auth';
+  private base = `${environment.apiBaseUrl}/auth`;
   private tokenKey = 'token';
 
   constructor(private http: HttpClient) {}
 
   register(data: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
+    return this.http.post<AuthResponse>(`${this.base}/register`, data).pipe(
       tap((res) => {
         if (res?.token) this.setToken(res.token);
       })
@@ -20,7 +20,7 @@ export class AuthService {
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
+    return this.http.post<AuthResponse>(`${this.base}/login`, data).pipe(
       tap((res) => {
         if (res?.token) this.setToken(res.token);
       })

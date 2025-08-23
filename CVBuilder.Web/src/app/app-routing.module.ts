@@ -21,7 +21,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: MainLayoutComponent, // <--- WRAPPER za sve ispod
+    component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent },

@@ -1,0 +1,386 @@
+﻿body {
+    font-family: "Inter", Arial, sans-serif;
+    color: #333;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #f9f9f9;
+}
+
+/* Container for the entire CV - Simulates A4 dimensions */
+.cv-container {
+    display: flex;
+    flex-direction: row;
+    font-family: "Inter", Arial, sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.sidebar {
+    flex: 1;
+    background-color: #1a2a47; /* Dark navy color */
+    color: #fff;
+    padding: 30px;
+    border-top-left-radius: 8px; /* Rounded corners */
+    border-bottom-left-radius: 8px; /* Rounded corners */
+    flex-basis: 33.33%; /* Roughly 1/3 of the CV width */
+    min-width: 150px; /* Ensure sidebar doesn't get too narrow */
+}
+
+/* Right Main Content Styles */
+.main-content {
+    flex: 2;
+    padding: 30px;
+    background-color: #f7f7f7;
+    border-top-right-radius: 8px; /* Rounded corners */
+    border-bottom-right-radius: 8px; /* Rounded corners */
+    flex-basis: 66.67%; /* Roughly 2/3 of the CV width */
+}
+
+/* Profile Photo */
+.profile-photo {
+    width: 150px; /* Made bigger */
+    height: 150px; /* Made bigger */
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 20px auto;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Added shadow to photo */
+}
+
+/* Placeholder for profile photo if none exists */
+.profile-photo-placeholder {
+    width: 150px; /* Made bigger */
+    height: 150px; /* Made bigger */
+    border-radius: 50%;
+    background-color: #5a6e8f; /* Placeholder color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px auto;
+    border: 3px solid #fff;
+    color: #fff;
+    font-size: 3.5em; /* Adjusted font size for bigger circle */
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+    .profile-photo-placeholder::before {
+        content: "👤"; /* Unicode user icon */
+    }
+
+/* Main Titles and Headings */
+.full-name {
+    font-size: 2.5em;
+    text-transform: uppercase;
+    color: #1a2a47;
+    margin-bottom: 5px;
+    font-weight: 700; /* Made name bolder */
+}
+
+.job-title {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+h4 {
+    text-transform: uppercase;
+    font-size: 1.2em;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    font-weight: 600; /* Adjusted heading weight */
+}
+
+.sidebar h4 {
+    border-bottom: 2px solid #5a6e8f; /* Lighter blue for sidebar */
+    color: #e0e0e0; /* Lighter color for sidebar headings */
+}
+
+.main-content h4 {
+    border-bottom: 2px solid #ccc; /* Grey for main content */
+    color: #333;
+}
+
+/* List Styles */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* Specific list styles */
+.contact-info ul li strong {
+    color: #e0e0e0; /* Lighter strong text in sidebar */
+}
+
+.education-list li,
+.employment-list li {
+    background-color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 12px;
+    border-left: 5px solid #4caf50; /* Green accent */
+    transition: transform 0.2s ease-in-out;
+}
+
+    .education-list li:hover,
+    .employment-list li:hover {
+        transform: translateY(-2px);
+    }
+
+    .education-list li strong,
+    .employment-list li strong {
+        color: #1a2a47; /* Darker text for company/institution names */
+    }
+
+/* Bullet points for skills */
+.skills li:before {
+    content: "•";
+    color: #7bb5e6; /* A slightly brighter blue for bullets */
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* Meta Info (Created/Modified Dates) */
+.meta-info {
+    font-size: 0.9em;
+    color: #999;
+    margin-bottom: 20px;
+    text-align: right; /* Align to the right, as it's secondary info */
+}
+
+    .meta-info p {
+        margin: 0;
+    }
+
+    .meta-info strong {
+        color: #777;
+    }
+
+/* Action buttons below the CV content */
+.actions {
+    display: flex;
+    justify-content: center; /* Centered buttons */
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #ecf0f1;
+    max-width: 210mm; /* Aligned with .cv-container width for the buttons */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .actions button {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        min-width: 120px; /* Ensure buttons have a minimum width */
+    }
+
+        .actions button:first-child {
+            /* Edit button */
+            background-color: #2196f3; /* Blue */
+            color: white;
+        }
+
+            .actions button:first-child:hover {
+                background-color: #1976d2;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        .actions button:last-child {
+            /* Delete button */
+            background-color: #f44336; /* Red */
+            color: white;
+        }
+
+            .actions button:last-child:hover {
+                background-color: #d32f2f;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    :host {
+        margin: 1rem;
+        padding: 1rem;
+        max-width: 100%; /* Full width on smaller screens */
+    }
+
+    .cv-container {
+        flex-direction: column;
+        max-width: 100%; /* Take full width on small screens */
+        width: auto; /* Remove fixed mm width */
+        min-height: auto; /* Remove fixed mm height */
+        margin: 10px;
+    }
+
+    .sidebar,
+    .main-content {
+        padding: 20px;
+        border-radius: 0; /* Remove rounded corners on stack */
+        flex-basis: auto; /* Reset flex-basis for column layout */
+    }
+
+    .sidebar {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .main-content {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .full-name {
+        font-size: 2em;
+        text-align: center;
+    }
+
+    .job-title {
+        font-size: 1.1em;
+        text-align: center;
+    }
+
+    .meta-info {
+        text-align: center; /* Center meta info on small screens */
+        margin-top: 15px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+        margin: 10px auto;
+        max-width: 100%;
+    }
+
+        .actions button {
+            width: 100%;
+            padding: 0.7rem 1rem;
+        }
+}
+
+/* Print Specific Styles for A4 */
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm; /* Slightly smaller margins for print content */
+    }
+
+    body {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        font-family: "Inter", Arial, sans-serif;
+        background-color: white !important; /* Ensure white background for print */
+    }
+
+    :host {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+        background-color: white;
+    }
+
+    /* Reset main container for printing */
+    .cv-container {
+        max-width: 100% !important; /* Allow content to fill print area */
+        width: auto !important; /* Reset fixed width */
+        min-height: auto !important; /* Reset fixed height, content drives height */
+        margin: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        flex-direction: row !important; /* Force two columns in print, regardless of screen size */
+        background-color: white !important;
+        height: auto; /* Let content determine height */
+        overflow: visible; /* Ensure content is not cut off */
+    }
+
+    .sidebar,
+    .main-content {
+        padding: 20px; /* Adjusted padding for print */
+        border-radius: 0 !important;
+        /* Ensure colors are print-friendly */
+        background-color: transparent !important; /* No background color */
+        color: #000 !important; /* Black text */
+    }
+
+    .sidebar {
+        background-color: #e0e0e0 !important; /* Lighter background for print sidebar */
+    }
+
+        .sidebar h4 {
+            border-bottom-color: #999 !important;
+            color: #333 !important;
+        }
+
+    .contact-info ul li strong {
+        color: #333 !important;
+    }
+
+    .skills li:before {
+        color: #666 !important;
+    }
+
+    .main-content h4 {
+        border-bottom-color: #999 !important;
+        color: #333 !important;
+    }
+
+    /* Hide buttons and modals when printing */
+    .actions,
+    app-delete-confirm-modal {
+        display: none !important;
+    }
+
+    /* Ensure text and elements are black on white for printing */
+    h2,
+    h3,
+    p,
+    strong,
+    ul,
+    li {
+        color: #000 !important;
+    }
+
+    .education-list li,
+    .employment-list li {
+        background-color: white !important;
+        box-shadow: none !important;
+        border-left: 3px solid #ccc !important; /* Subtler accent for print */
+    }
+
+        .education-list li strong,
+        .employment-list li strong {
+            color: #000 !important;
+        }
+}

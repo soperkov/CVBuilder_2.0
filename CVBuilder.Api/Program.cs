@@ -29,6 +29,9 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ICVService, CVService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPdfService, PdfService>();
+            builder.Services.AddScoped<ITemplateService, TemplateService>();
+            builder.Services.AddScoped<TemplateSeeder>();
 
 
             builder.Services.AddScoped<JwtService>();
@@ -53,6 +56,38 @@ namespace CVBuilder.Api
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var cfg = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                logger.LogInformation("Environment: {Env}", env.EnvironmentName);
+
+                if (env.IsDevelopment() && cfg.GetValue<bool>("RunMigrationsAtStartup"))
+                {
+                    var pending = ctx.Database.GetPendingMigrations();
+                    if (pending.Any())
+                    {
+                        logger.LogInformation("Applying {Count} pending migrations…", pending.Count());
+                        ctx.Database.Migrate();
+                    }
+                    else
+                    {
+                        logger.LogInformation("No pending migrations.");
+                    }
+                }
+
+                if (cfg.GetValue<bool>("SeedTemplatesAtStartup"))
+                {
+                    var seeder = scope.ServiceProvider.GetRequiredService<TemplateSeeder>();
+                    logger.LogInformation("Running TemplateSeeder…");
+                    seeder.SeedAsync().GetAwaiter().GetResult();
+                    logger.LogInformation("TemplateSeeder finished.");
+                }
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -68,6 +103,8 @@ namespace CVBuilder.Api
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseStaticFiles();
 
             app.MapControllers();
 

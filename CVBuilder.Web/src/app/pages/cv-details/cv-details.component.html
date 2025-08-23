@@ -1,48 +1,58 @@
-<h2>CV Details</h2>
+<ng-container>
+  <div class="cv-container" [class.no-template]="!cv?.templateId">
+    <div class="sidebar">
+      <img class="profile-photo" src="your_photo_url.jpg" alt="Profile Photo" />
 
-<div *ngIf="loading">Loading...</div>
-<div *ngIf="error">{{ error }}</div>
+      <h4>Contact</h4>
+      <p>
+        <strong>Phone:</strong><br />
+        {{ cv?.phoneNumber }}
+      </p>
+      <p>
+        <strong>Email:</strong><br />
+        {{ cv?.email }}
+      </p>
 
-<ng-container *ngIf="cv as model">
-  <h3>{{ model.fullName }}</h3>
-  <p>
-    <strong>Created:</strong>
-    {{ model.localCreated | date : "dd.MM.yyyy HH:mm" }}
-  </p>
-  <p>
-    <strong>Modified:</strong>
-    {{ model.localModified | date : "dd.MM.yyyy HH:mm" }}
-  </p>
+      <h4>Skills</h4>
+      <ul class="skills">
+        <li *ngFor="let s of cv?.skills">{{ s.name }}</li>
+      </ul>
+    </div>
 
-  <p><strong>Date of Birth:</strong> {{ model.dateOfBirth }}</p>
-  <p><strong>Email:</strong> {{ model.email }}</p>
-  <p><strong>Phone:</strong> {{ model.phoneNumber }}</p>
-  <p><strong>About Me:</strong> {{ model.aboutMe }}</p>
+    <div class="main-content">
+      <div class="header">
+        <h2 class="full-name">{{ cv?.fullName }}</h2>
+      </div>
 
-  <h4>Skills</h4>
-  <ul>
-    <li *ngFor="let s of cv?.skills">{{ s.name }}</li>
-  </ul>
+      <h4>Profile</h4>
+      <p>{{ cv?.aboutMe }}</p>
 
-  <h4>Education</h4>
-  <ul>
-    <li *ngFor="let edu of model.education">
-      {{ edu.institutionName }} ({{ edu.from }} - {{ edu.to }})<br />
-      {{ edu.description }}
-    </li>
-  </ul>
+      <h4>Work Experience</h4>
+      <ul class="employment">
+        <li *ngFor="let emp of cv?.employment">
+          <strong>{{ emp.companyName }}</strong
+          ><br />
+          {{ emp.from }} - {{ emp.to }}<br />
+          {{ emp.description }}
+        </li>
+      </ul>
 
-  <h4>Employment</h4>
-  <ul>
-    <li *ngFor="let emp of model.employment">
-      {{ emp.companyName }} ({{ emp.from }} - {{ emp.to }})<br />
-      {{ emp.description }}
-    </li>
-  </ul>
+      <h4>Education</h4>
+      <ul class="education">
+        <li *ngFor="let edu of cv?.education">
+          <strong>{{ edu.institutionName }}</strong
+          ><br />
+          {{ edu.from }} - {{ edu.to }}<br />
+          {{ edu.description }}
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <div class="actions">
     <button [routerLink]="['/cv/edit', cvId]">Edit</button>
     <button (click)="openDeleteModal()">Delete</button>
+    <button (click)="exportPdf()">Download</button>
   </div>
 </ng-container>
 

@@ -37,7 +37,7 @@ export class MyCVsComponent implements OnInit {
       next: (res: Cv[]) => {
         this.cvs = (res || [])
           .map((cv: any) => {
-            const when = cv.modifiedAt ?? cv.createdAt;
+            const when = cv.updatedAt ?? cv.createdAt;
             return {
               ...cv,
               localTime: toLocalDate(when),
