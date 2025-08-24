@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
-
-namespace CVBuilder.Api.Services
+﻿namespace CVBuilder.Api.Services
 {
     public class CVService : ICVService
     {
@@ -222,5 +220,15 @@ namespace CVBuilder.Api.Services
                 To = e.To
             }).ToList()
         };
+
+        public async Task<CVModel?> GetCvForRenderAsync(int id, int userId)
+        {
+            return await _context.CVs
+                .Include(c => c.Skills)
+                .Include(c => c.Education)
+                .Include(c => c.Employment)
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+        }
     }
+
 }

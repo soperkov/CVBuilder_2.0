@@ -1,60 +1,29 @@
 ﻿namespace CVBuilder.Api.Services
 {
-    public class TemplateSeeder
+    public static class TemplateSeeder
     {
-        private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _env;
-        private readonly ILogger<TemplateSeeder> _log;
-
-        public TemplateSeeder(AppDbContext context, IWebHostEnvironment env, ILogger<TemplateSeeder> log)
+        public static async Task SeedTemplatesAsync(
+            AppDbContext db,
+            ITemplateCatalog catalog,
+            ILogger logger,
+            CancellationToken ct = default)
         {
-            _context = context;
-            _env = env;
-            _log = log;
-        }
+            var existing = await db.Templates.Select(t => t.Name).ToListAsync(ct);
+            var toInsert = catalog.Names
+                .Except(existing, StringComparer.OrdinalIgnoreCase)
+                .Select(n => new TemplateModel { Name = n })
+                .ToList();
 
-        public async Task SeedAsync(CancellationToken ct = default)
-        {
-            var classicPath = Path.Combine(_env.ContentRootPath, "Templates", "cv-classic.css");
-            if (!File.Exists(classicPath))
+            if (toInsert.Count == 0)
             {
-                _log.LogWarning("Template CSS not found at {Path}", classicPath);
+                logger.LogInformation("TemplateSeeder: nothing to seed.");
                 return;
             }
 
-            var css = await File.ReadAllTextAsync(classicPath, ct);
-
-            var existing = await _context.Templates.FirstOrDefaultAsync(t => t.Name == "Classic", ct);
-
-            if (existing is null)
-            {
-                _context.Templates.Add(new TemplateModel
-                {
-                    Name = "Classic",
-                    Description = "Default two-column resume style",
-                    PreviewImageUrl = "",    
-                    CssContent = css,
-                    IsActive = true
-                });
-                _log.LogInformation("Inserted 'Classic' template.");
-            }
-            else
-            {
-                if (!string.Equals(existing.CssContent, css, StringComparison.Ordinal))
-                {
-                    existing.CssContent = css;
-                    _context.Templates.Update(existing);
-                    _log.LogInformation("Updated 'Classic' template CSS.");
-                }
-
-                if (!existing.IsActive)
-                {
-                    existing.IsActive = true;
-                    _context.Templates.Update(existing);
-                }
-            }
-
-            await _context.SaveChangesAsync(ct);
+            db.Templates.AddRange(toInsert);
+            await db.SaveChangesAsync(ct);
+            logger.LogInformation("TemplateSeeder: seeded {Count} templates: {Names}",
+                toInsert.Count, string.Join(", ", toInsert.Select(x => x.Name)));
         }
     }
 }

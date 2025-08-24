@@ -1,7 +1,7 @@
 ﻿using CVBuilder.Core.Interfaces;
 
 [ApiController]
-[Route("api/[controller]")]
+[Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

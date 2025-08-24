@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-namespace CVBuilder.Api.Controllers
+﻿namespace CVBuilder.Api.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Microsoft.AspNetCore.Mvc.Route("api/user")]
     [Authorize]
     public class UserController : ControllerBase
     {

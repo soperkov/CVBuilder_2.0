@@ -5,17 +5,17 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 namespace CVBuilder.Api.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class CVController : ControllerBase
     {
         private readonly ICVService _cvService;
-        private readonly IPdfService _pdfService;
+        private readonly IPlaywrightPdfService _pdf;
 
-        public CVController(ICVService cvService, IPdfService pdfService)
+        public CVController(ICVService cvService, IPlaywrightPdfService pdf)
         {
             _cvService = cvService;
-            _pdfService = pdfService;
+            _pdf = pdf;
         }
 
         private int GetUserId()
@@ -134,25 +134,23 @@ namespace CVBuilder.Api.Controllers
         }
 
         [HttpGet("{id}/pdf")]
-        public async Task<IActionResult> GetPdf(int id, CancellationToken ct)
+        public async Task<IActionResult> DownloadPdf(int id, CancellationToken ct)
         {
             int userId = GetUserId();
-
-            var bytes = await _pdfService.GenerateCvPdfAsync(id, userId, ct);
-
-            var cv = await _cvService.GetCvByIdAsync(id, userId);
-            if (cv == null) return NotFound();
-
-            var safeName = string.IsNullOrWhiteSpace(cv.CVName) ? $"CV_{id}" : cv.CVName;
-
-            foreach (var c in Path.GetInvalidFileNameChars())
-            {
-                safeName = safeName.Replace(c, '_');
-            }
-
-            var fileName = $"{safeName}.pdf";
-            return File(bytes, "application/pdf", fileName);
+            var (bytes, name) = await _pdf.GenerateByCvIdAsync(id, userId, ct);
+            return File(bytes, "application/pdf", name);
         }
 
+        [HttpGet("{id}/preview")]
+        public async Task<IActionResult> Preview(int id, [FromServices] PdfGenerator renderer)
+        {
+            var userId = GetUserId();                 
+            var cv = await _cvService.GetCvForRenderAsync(id, userId);
+            if (cv is null) return NotFound();
+
+            var html = await renderer.RenderCVToHtmlAsync(cv); 
+            return Content(html, "text/html; charset=utf-8");
+        }
     }
 }
+

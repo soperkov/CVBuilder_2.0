@@ -8,5 +8,7 @@
         Task<bool> UpdateCvAsync(int id, CreateCVDto dto, int userId);
         Task<bool> DeleteCvAsync(int id, int userId);
         Task DeleteManyAsync(IEnumerable<int> ids);
+
+        Task<CVModel?> GetCvForRenderAsync(int id, int userId);
     }
 }

@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CvClassic</title>
+    <style>
+        :root {
+        --navy: #1a2a47;
+        --light-bg: #f7f7f7;
+        --text: #333;
+        }
+
+        body {
+        font-family: "Inter", Arial, sans-serif;
+        color: var(--text);
+        margin: 2rem auto;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        }
+
+        .cv-container {
+        display: flex;
+        flex-direction: row;
+        font-family: "Inter", Arial, sans-serif;
+        box-shadow: 0 4px 8px rgba(0,0,0,.1);
+        max-width: 1100px;
+        min-height: 560px;
+        margin: 20px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        color: var(--text);
+        }
+
+        h2 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        font-size: 2.2rem;
+        font-weight: 700;
+        }
+
+        .sidebar {
+        flex: 1;
+        background-color: var(--navy);
+        color: #fff;
+        padding: 30px;
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+        min-width: 240px;
+        }
+
+        .main-content {
+        flex: 2;
+        padding: 30px;
+        background-color: var(--light-bg);
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        }
+
+        .profile-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        margin: 0 auto 20px auto;
+        border: 3px solid #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,.2);
+        }
+
+        .profile-photo-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: #5a6e8f;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 20px auto;
+        border: 3px solid #fff;
+        color: #fff;
+        font-size: 3.5em;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,.2);
+        }
+        .profile-photo-placeholder::before { content: "👤"; }
+
+        .full-name {
+        font-size: 2.5em;
+        text-transform: uppercase;
+        color: var(--navy);
+        margin-bottom: 5px;
+        font-weight: 700;
+        }
+
+        .job-title {
+        font-size: 1.2em;
+        color: #666;
+        margin-bottom: 20px;
+        }
+
+        h4 {
+        text-transform: uppercase;
+        font-size: 1.2em;
+        padding-bottom: 5px;
+        margin-top: 20px;
+        font-weight: 600;
+        }
+
+        .sidebar h4 {
+        border-bottom: 2px solid #5a6e8f;
+        color: #e0e0e0;
+        }
+
+        .main-content h4 {
+        border-bottom: 2px solid #ccc;
+        color: #333;
+        }
+
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { margin-bottom: 10px; line-height: 1.5; }
+
+        .skills li:before {
+        content: "•";
+        color: #7bb5e6;
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: -1em;
+        }
+
+        .education-list li,
+        .employment-list li {
+        background-color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        margin-bottom: 12px;
+        border-left: 5px solid #4caf50;
+        transition: transform .2s ease-in-out;
+        }
+        .education-list li:hover,
+        .employment-list li:hover { transform: translateY(-2px); }
+        .education-list li strong,
+        .employment-list li strong { color: var(--navy); }
+
+        .actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem auto 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid #ecf0f1;
+        max-width: 1100px;
+        }
+        .actions button {
+        padding: .8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all .3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,.1);
+        min-width: 120px;
+        }
+        .actions button:nth-child(1) { background-color: #2196f3; color: #fff; }
+        .actions button:nth-child(1):hover { background-color: #1976d2; box-shadow: 0 4px 8px rgba(0,0,0,.2); }
+        .actions button:nth-child(2) { background-color: #f44336; color: #fff; }
+        .actions button:nth-child(2):hover { background-color: #d32f2f; box-shadow: 0 4px 8px rgba(0,0,0,.2); }
+        .actions button:nth-child(3) { background-color: #4caf50; color: #fff; }
+        .actions button:nth-child(3):hover { background-color: #3e8e41; box-shadow: 0 4px 8px rgba(0,0,0,.2); }
+
+        .sidebar, .main-content { padding: 20px; border-radius: 0; }
+        .sidebar { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .main-content { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+        .full-name { font-size: 2em; text-align: center; }
+        .job-title { font-size: 1.1em; text-align: center; }
+        .actions { flex-direction: column; gap: .8rem; padding: 1rem; margin: 10px auto; max-width: 100%; }
+        .actions button { width: 100%; padding: .7rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+        <div class="cv-container @(Model?.TemplateId == null ? "no-template" : "")">
+            <div class="sidebar">
+                @if (!string.IsNullOrWhiteSpace(Model?.PhotoUrl))
+                {
+                    <img class="profile-photo" src="@Model!.PhotoUrl" alt="Profile Photo" />
+                }
+                else
+                {
+                    <div class="profile-photo-placeholder"></div>
+                }
+
+                <h4>Contact</h4>
+                <p>
+                    <strong>Phone:</strong><br />
+                    @Model?.PhoneNumber
+                </p>
+                <p>
+                    <strong>Email:</strong><br />
+                    @Model?.Email
+                </p>
+
+                <h4>Skills</h4>
+                <ul class="skills">
+                    @if (Model?.Skills != null)
+                    {
+                        @foreach (var s in Model.Skills)
+                        {
+                            <li>@s.Name</li>
+                        }
+                    }
+                </ul>
+            </div>
+
+            <div class="main-content">
+                <div class="header">
+                    <h2 class="full-name">@Model?.FullName</h2>
+                </div>
+
+                <h4>Profile</h4>
+                <p>@Model?.AboutMe</p>
+
+                <h4>Work Experience</h4>
+                <ul class="employment employment-list">
+                    @if (Model?.Employment != null)
+                    {
+                        @foreach (var emp in Model.Employment)
+                        {
+                            <li>
+                                <strong>@emp.CompanyName</strong><br />
+                                @emp.From - @emp.To<br />
+                                @emp.Description
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <h4>Education</h4>
+                <ul class="education education-list">
+                    @if (Model?.Education != null)
+                    {
+                        @foreach (var edu in Model.Education)
+                        {
+                            <li>
+                                <strong>@edu.InstitutionName</strong><br />
+                                @edu.From - @edu.To<br />
+                                @edu.Description
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button>Edit</button>
+            <button>Delete</button>
+            <button>Download</button>
+        </div>
+</body>
+</html>
+
+
+@code {
+    [Parameter] public CVModel Model { get; set; } = new();
+
+    private MarkupString FormatStackTraceLine(string line)
+    {
+        return new MarkupString(line
+            .Replace(" at ", "<span class='method'> at </span>")
+            .Replace(" in ", " <span class='file'>in </span>")
+            .Replace(":line", " <span class='line'>:line</span>"));
+    }
+}

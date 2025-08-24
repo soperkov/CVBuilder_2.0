@@ -12,6 +12,10 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.AspNetCore.Components.Web;
+global using Microsoft.AspNetCore.Components;
 
 global using System.Security.Claims;
 global using System.Security.Cryptography;

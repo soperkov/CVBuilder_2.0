@@ -10,20 +10,8 @@
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(t => t.Description)
-                .HasMaxLength(500);
-
-            builder.Property(t => t.PreviewImageUrl)
-                .IsRequired()
-                .HasMaxLength(200);
-
-            builder.Property(t => t.CssContent)
-                   .IsRequired()
-                   .HasColumnType("nvarchar(max)");
-
-            builder.Property(t => t.IsActive)
-                   .IsRequired()
-                   .HasDefaultValue(true);
+            builder.HasIndex(t => t.Name)
+                .IsUnique();
 
             builder.ToTable("Templates");
         }
