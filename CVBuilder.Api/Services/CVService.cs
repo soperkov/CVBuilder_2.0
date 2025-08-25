@@ -227,8 +227,9 @@
                 .Include(c => c.Skills)
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
+                .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
         }
-    }
 
+    }
 }

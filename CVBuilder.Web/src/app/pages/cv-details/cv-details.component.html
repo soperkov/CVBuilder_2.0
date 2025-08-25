@@ -1,53 +1,21 @@
 <ng-container>
-  <div class="cv-container" [class.no-template]="!cv?.templateId">
-    <div class="sidebar">
-      <img class="profile-photo" src="your_photo_url.jpg" alt="Profile Photo" />
-
-      <h4>Contact</h4>
-      <p>
-        <strong>Phone:</strong><br />
-        {{ cv?.phoneNumber }}
-      </p>
-      <p>
-        <strong>Email:</strong><br />
-        {{ cv?.email }}
-      </p>
-
-      <h4>Skills</h4>
-      <ul class="skills">
-        <li *ngFor="let s of cv?.skills">{{ s.name }}</li>
-      </ul>
-    </div>
-
-    <div class="main-content">
-      <div class="header">
-        <h2 class="full-name">{{ cv?.fullName }}</h2>
-      </div>
-
-      <h4>Profile</h4>
-      <p>{{ cv?.aboutMe }}</p>
-
-      <h4>Work Experience</h4>
-      <ul class="employment">
-        <li *ngFor="let emp of cv?.employment">
-          <strong>{{ emp.companyName }}</strong
-          ><br />
-          {{ emp.from }} - {{ emp.to }}<br />
-          {{ emp.description }}
-        </li>
-      </ul>
-
-      <h4>Education</h4>
-      <ul class="education">
-        <li *ngFor="let edu of cv?.education">
-          <strong>{{ edu.institutionName }}</strong
-          ><br />
-          {{ edu.from }} - {{ edu.to }}<br />
-          {{ edu.description }}
-        </li>
-      </ul>
-    </div>
+  <div *ngIf="pdfSafeUrl; else loading" class="pdf-wrapper">
+    <iframe
+      [src]="pdfSafeUrl"
+      width="100%"
+      height="900"
+      style="border: none"
+      title="CV PDF"
+    >
+    </iframe>
   </div>
+
+  <ng-template #loading>
+    <div class="loading-state">
+      <p *ngIf="loading">Loading…</p>
+      <p *ngIf="!loading && error">{{ error }}</p>
+    </div>
+  </ng-template>
 
   <div class="actions">
     <button [routerLink]="['/cv/edit', cvId]">Edit</button>
@@ -61,4 +29,5 @@
   [count]="1"
   (confirm)="confirmDelete()"
   (cancel)="closeDeleteModal()"
-></app-delete-confirm-modal>
+>
+</app-delete-confirm-modal>

@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CVService } from '../../services/cv.service';
 import { Cv } from '../../models';
 import { toLocalDate } from '../../utils/date.utils';
-import { TemplateService } from '../../services/template.service';
+import { environment } from '../../environments/environment';
 
 type CvDisplay = Cv & {
   localCreated: Date | null;
@@ -17,7 +18,7 @@ type CvDisplay = Cv & {
   templateUrl: './cv-details.component.html',
   styleUrls: ['./cv-details.component.css'],
 })
-export class CVDetailsComponent implements OnInit, OnDestroy {
+export class CVDetailsComponent implements OnInit {
   cvId!: number;
   cv!: CvDisplay | null;
   loading = true;
@@ -26,12 +27,12 @@ export class CVDetailsComponent implements OnInit, OnDestroy {
   showDeleteModal = false;
   isDeleting = false;
 
-  private styleEl: HTMLStyleElement | null = null;
+  pdfSafeUrl: SafeResourceUrl | null = null; // koristimo samo ovo u <iframe>
 
   constructor(
     private route: ActivatedRoute,
     private cvService: CVService,
-    private templateService: TemplateService,
+    private sanitizer: DomSanitizer,
     public router: Router
   ) {}
 
@@ -46,14 +47,12 @@ export class CVDetailsComponent implements OnInit, OnDestroy {
 
     this.cvService.getCVById(this.cvId).subscribe({
       next: (res: any) => {
-        // skills mogu biti string[] ili { name: string }[]
         const skillObjs = Array.isArray(res.skills)
           ? res.skills.map((s: any) =>
               typeof s === 'string' ? { name: s } : s
             )
           : [];
 
-        // uzmi created/modified iz više mogućih polja
         const createdRaw = res.createdAt ?? res.createdAtUtc ?? null;
         const modifiedRaw =
           res.modifiedAt ?? res.updatedAt ?? res.updatedAtUtc ?? createdRaw;
@@ -65,10 +64,19 @@ export class CVDetailsComponent implements OnInit, OnDestroy {
           localModified: toLocalDate(modifiedRaw),
         } as CvDisplay;
 
-        // ako postoji templateId — učitaj CSS iz backenda i injektaj u <head>
-        this.applyTemplateCss(this.cv.templateId ?? null);
-
-        this.loading = false;
+        // Ticket za PREVIEW (inline)
+        this.cvService.getPdfTicket(this.cvId).subscribe({
+          next: ({ token }) => {
+            const inlineUrl = `${environment.apiBaseUrl}/cv/pdf-inline/${token}`;
+            this.pdfSafeUrl =
+              this.sanitizer.bypassSecurityTrustResourceUrl(inlineUrl);
+            this.loading = false;
+          },
+          error: () => {
+            this.error = 'Failed to get PDF ticket.';
+            this.loading = false;
+          },
+        });
       },
       error: () => {
         this.error = 'Failed to load CV details.';
@@ -77,85 +85,22 @@ export class CVDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.removeTemplateCss();
-  }
-
-  // ===== Template CSS injekcija / čišćenje =====
-  private applyTemplateCss(templateId: number | null) {
-    this.removeTemplateCss();
-    if (!templateId) return;
-
-    this.templateService.getById(templateId).subscribe({
-      next: (t) => {
-        if (!t?.cssContent) return;
-        const el = document.createElement('style');
-        el.setAttribute('data-cv-template', String(templateId));
-        el.textContent = t.cssContent;
-        document.head.appendChild(el);
-        this.styleEl = el;
-      },
-      error: () => {
-        // ne ruši UI ako CSS fali
-      },
-    });
-  }
-
-  private removeTemplateCss() {
-    if (this.styleEl?.parentNode) {
-      this.styleEl.parentNode.removeChild(this.styleEl);
-    }
-    this.styleEl = null;
-  }
-
-  // ===== PDF download =====
   exportPdf() {
-    if (!this.cvId) return;
-
-    this.cvService.downloadPdf(this.cvId).subscribe({
-      next: (res: any) => {
-        // podrži oba scenarija:
-        // 1) servis vraća samo Blob
-        // 2) servis vraća HttpResponse<Blob> s headerima
-        let blob: Blob | null = null;
-        let fileName = (this.cv?.cvName?.trim() || `CV_${this.cvId}`) + '.pdf';
-
-        if (res instanceof Blob) {
-          blob = res;
-        } else if (res?.body instanceof Blob) {
-          blob = res.body as Blob;
-          const dispo = res.headers?.get?.('content-disposition');
-          if (dispo) {
-            const m = /filename\*?=(?:UTF-8''|")?([^;"']+)/i.exec(dispo);
-            if (m && m[1]) {
-              try {
-                const decoded = decodeURIComponent(m[1].replace(/"/g, ''));
-                fileName = decoded.toLowerCase().endsWith('.pdf')
-                  ? decoded
-                  : decoded + '.pdf';
-              } catch {
-                /* ignore decode failure */
-              }
-            }
-          }
-        }
-
-        if (!blob) return;
-
-        const url = URL.createObjectURL(blob);
+    this.cvService.getPdfTicket(this.cvId).subscribe({
+      next: ({ token }) => {
+        const downloadUrl = `${environment.apiBaseUrl}/cv/pdf/${token}`;
         const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
+        a.href = downloadUrl;
+        a.rel = 'noopener';
+        a.target = '_self';
         a.click();
-        URL.revokeObjectURL(url);
       },
       error: () => {
-        this.error = 'Failed to export PDF.';
+        this.error = 'Failed to get download link.';
       },
     });
   }
 
-  // ===== Delete modal =====
   openDeleteModal() {
     this.showDeleteModal = true;
   }

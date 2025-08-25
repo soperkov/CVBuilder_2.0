@@ -37,12 +37,9 @@ namespace CVBuilder.Api
             });
             builder.Services.AddScoped<ITemplateRenderService, TemplateRenderService>();
             builder.Services.AddScoped<IPlaywrightPdfService, PlaywrightPdfService>();
-            builder.Services.AddScoped<PdfGenerator>(_ =>
-            {
-                var sc = new ServiceCollection();
-                sc.AddLogging();
-                return new PdfGenerator(sc);
-            });
+            builder.Services.AddScoped<PdfGenerator>();
+            builder.Services.AddMemoryCache();
+            builder.Services.AddSingleton<IDownloadTicketService, DownloadTicketService>();
 
             builder.Services.AddScoped<JwtService>();
 

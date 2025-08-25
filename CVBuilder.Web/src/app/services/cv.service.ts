@@ -57,10 +57,17 @@ export class CVService {
     return this.http.delete<void>(`${this.base}`, { params });
   }
 
-  downloadPdf(id: number) {
-    return this.http.get(`${this.base}/${id}/pdf`, {
-      observe: 'response',
-      responseType: 'blob',
-    });
+  // downloadPdf(id: number) {
+  //   return this.http.get(`${this.base}/${id}/pdf`, {
+  //     observe: 'response',
+  //     responseType: 'blob',
+  //   });
+  // }
+
+  getPdfTicket(id: number) {
+    return this.http.post<{ token: string }>(
+      `${environment.apiBaseUrl}/cv/${id}/pdf-ticket`,
+      {}
+    );
   }
 }

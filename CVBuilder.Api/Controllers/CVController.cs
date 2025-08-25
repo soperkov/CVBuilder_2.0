@@ -11,11 +11,13 @@ namespace CVBuilder.Api.Controllers
     {
         private readonly ICVService _cvService;
         private readonly IPlaywrightPdfService _pdf;
+        private readonly IDownloadTicketService _tickets;
 
-        public CVController(ICVService cvService, IPlaywrightPdfService pdf)
+        public CVController(ICVService cvService, IPlaywrightPdfService pdf, IDownloadTicketService tickets)
         {
             _cvService = cvService;
             _pdf = pdf;
+            _tickets = tickets;
         }
 
         private int GetUserId()
@@ -133,24 +135,37 @@ namespace CVBuilder.Api.Controllers
             return NoContent();
         }
 
-        [HttpGet("{id}/pdf")]
-        public async Task<IActionResult> DownloadPdf(int id, CancellationToken ct)
+        [AllowAnonymous]
+        [HttpGet("pdf-inline/{token}")]
+        public async Task<IActionResult> PreviewWithTicket(string token, CancellationToken ct)
+        {
+            if (!_tickets.TryConsume(token, out var payload))
+                return Unauthorized("Invalid or expired download link.");
+
+            var (bytes, name) = await _pdf.GenerateByCvIdAsync(payload.cvId, payload.userId, ct);
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{name}\"";
+            return File(bytes, "application/pdf");
+        }
+
+        [HttpPost("{id}/pdf-ticket")]
+        public IActionResult IssuePdfTicket(int id)
         {
             int userId = GetUserId();
-            var (bytes, name) = await _pdf.GenerateByCvIdAsync(id, userId, ct);
+            var token = _tickets.Issue(userId, id, TimeSpan.FromMinutes(2));
+            return Ok(new { token });
+        }
+
+        [AllowAnonymous]
+        [HttpGet("pdf/{token}")]
+        public async Task<IActionResult> DownloadWithTicket(string token, CancellationToken ct)
+        {
+            if (!_tickets.TryConsume(token, out var payload))
+                return Unauthorized("Invalid or expired download link.");
+
+            var (bytes, name) = await _pdf.GenerateByCvIdAsync(payload.cvId, payload.userId, ct);
             return File(bytes, "application/pdf", name);
         }
 
-        [HttpGet("{id}/preview")]
-        public async Task<IActionResult> Preview(int id, [FromServices] PdfGenerator renderer)
-        {
-            var userId = GetUserId();                 
-            var cv = await _cvService.GetCvForRenderAsync(id, userId);
-            if (cv is null) return NotFound();
-
-            var html = await renderer.RenderCVToHtmlAsync(cv); 
-            return Content(html, "text/html; charset=utf-8");
-        }
     }
 }
 

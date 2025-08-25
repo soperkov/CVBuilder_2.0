@@ -5,20 +5,18 @@ namespace CVBuilder.Api.Services
 {
     public class PdfGenerator
     {
-        private IServiceCollection _services = new ServiceCollection();
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public PdfGenerator(IServiceCollection services)
+        public PdfGenerator(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
-            _services = services;
-            _services.AddLogging();
+            _serviceProvider = serviceProvider;
+            _loggerFactory = loggerFactory;
         }
 
         public async Task<string> RenderCVToHtmlAsync(CVModel model)
-        {
-            var serviceProvider = _services.BuildServiceProvider();
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            
-            await using var htmlRenderer = new HtmlRenderer(serviceProvider, loggerFactory);
+        {            
+            await using var htmlRenderer = new HtmlRenderer(_serviceProvider, _loggerFactory);
 
             var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
             {

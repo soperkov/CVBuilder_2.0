@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface TemplateDto {
   id: number;
@@ -13,15 +14,15 @@ export interface TemplateDto {
 
 @Injectable({ providedIn: 'root' })
 export class TemplateService {
-  private apiUrl = 'https://localhost:7123/api/template';
+  private base = `${environment.apiBaseUrl}/template`;
 
   constructor(private http: HttpClient) {}
 
   getById(id: number): Observable<TemplateDto> {
-    return this.http.get<TemplateDto>(`${this.apiUrl}/${id}`);
+    return this.http.get<TemplateDto>(`${this.base}/${id}`);
   }
 
   getAll(): Observable<TemplateDto[]> {
-    return this.http.get<TemplateDto[]>(this.apiUrl);
+    return this.http.get<TemplateDto[]>(this.base);
   }
 }
