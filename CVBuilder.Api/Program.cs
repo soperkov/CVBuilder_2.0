@@ -47,19 +47,19 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<EmailService>();
 
             builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
-        };
-    });
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                };
+            });
 
             var app = builder.Build();
 
@@ -82,6 +82,23 @@ namespace CVBuilder.Api
                 TemplateSeeder.SeedTemplatesAsync(db, catalog, logger)
                                   .GetAwaiter()
                                   .GetResult();
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+                                                  .CreateLogger("LanguageSeeder");
+                try
+                {
+                    LanguageSeeder
+                        .SeedLanguagesAsync(app.Services, logger)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error while seeding languages.");
+                }
             }
 
             app.UseHttpsRedirection();
