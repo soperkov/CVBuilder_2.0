@@ -12,5 +12,6 @@ global using Microsoft.Extensions.Configuration;
 global using CVBuilder.Core.Settings;
 global using CVBuilder.Core.Models;
 global using CVBuilder.Core.Dtos;
+global using CVBuilder.Core.Enums;
 
 

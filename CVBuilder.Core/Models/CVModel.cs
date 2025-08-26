@@ -12,11 +12,15 @@
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string? AboutMe { get; set; }
-        public string? PhotoUrl { get; set; } 
+        public string? PhotoUrl { get; set; }
+        public string? Address { get; set; }
+        public string? WebPage { get; set; }
+        public string? JobTitle { get; set; }
 
         public List<SkillModel> Skills { get; set; }
         public List<EducationEntryModel>? Education { get; set; }
         public List<EmploymentEntryModel>? Employment { get; set; }
+        public List<LanguageEntryModel>? Language { get; set; }
 
         public int? TemplateId { get; set; }
         public TemplateModel? Template { get; set; }

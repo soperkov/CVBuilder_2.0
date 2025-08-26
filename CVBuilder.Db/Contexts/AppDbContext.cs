@@ -1,4 +1,6 @@
-﻿namespace CVBuilder.Db.Contexts
+﻿using Microsoft.EntityFrameworkCore.Internal;
+
+namespace CVBuilder.Db.Contexts
 {
     public class AppDbContext : DbContext
     {
@@ -12,6 +14,8 @@
         public DbSet<SkillModel> Skills { get; set; }
         public DbSet<EducationEntryModel> Educations { get; set; }
         public DbSet<EmploymentEntryModel> Employments { get; set; }
+        public DbSet<LanguageModel> Languages { get; set; }
+        public DbSet<LanguageEntryModel> LanguageEntries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

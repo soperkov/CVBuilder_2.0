@@ -24,23 +24,56 @@
                 UpdatedAtUtc = DateTime.UtcNow,
                 CreatedByUser = userId,
                 TemplateId = dto.TemplateId,
+                Address = dto.Address,
+                WebPage = dto.WebPage,
+                JobTitle = dto.JobTitle,
 
                 Skills = dto.Skills?.Select(s => new SkillModel { Name = s.Name }).ToList() ?? new List<SkillModel>(),
-                Education = dto.Education?.Select(e => new EducationEntryModel
-                {
-                    InstitutionName = e.InstitutionName,
-                    Description = e.Description,
-                    From = e.From,
-                    To = e.To
-                }).ToList() ?? new List<EducationEntryModel>(),
+                Education = dto.Education?.Select(e =>
+                 {
+                     DateTime? toDate = e.To;
 
-                Employment = dto.Employment?.Select(e => new EmploymentEntryModel
+                     if (!e.IsCurrent && toDate == null)
+                     {
+                         throw new ArgumentException("To date must be provided if the education entry is not current.");
+                     }
+
+                     return new EducationEntryModel
+                     {
+                         CVId = e.CVId,
+                         InstitutionName = e.InstitutionName,
+                         Description = e.Description,
+                         From = e.From,
+                         To = e.To,
+                         IsCurrent = e.IsCurrent
+                     };
+                 }).ToList() ?? new List<EducationEntryModel>(),
+
+                Employment = dto.Employment?.Select(e =>
                 {
-                    CompanyName = e.CompanyName,
-                    Description = e.Description,
-                    From = e.From,
-                    To = e.To
-                }).ToList() ?? new List<EmploymentEntryModel>()
+                    DateTime? toDate = e.To;
+                    if (!e.IsCurrent && toDate == null)
+                    {
+                        throw new ArgumentException("To date must be provided if the employment entry is not current.");
+                    }
+
+                    return new EmploymentEntryModel
+                    {
+                        CVId = e.CVId,
+                        CompanyName = e.CompanyName,
+                        Description = e.Description,
+                        From = e.From,
+                        To = e.To,
+                        IsCurrent = e.IsCurrent
+                    };
+                }).ToList() ?? new List<EmploymentEntryModel>(),
+
+                Language = dto.Language?.Select(l => new LanguageEntryModel
+                {
+                    CVId = l.CVId,
+                    LanguageId = l.LanguageId,
+                    Level = l.Level,
+                }).ToList() ?? new List<LanguageEntryModel>()
             };
 
             if (dto.TemplateId.HasValue)
@@ -61,6 +94,7 @@
                 .Include(c => c.Skills)
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
+                .Include(c => c.Language)
                 .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
 
@@ -74,6 +108,7 @@
                 .Include(cv => cv.Skills)
                 .Include(cv => cv.Education)
                 .Include(cv => cv.Employment)
+                .Include(cv => cv.Language)
                 .Include(cv => cv.Template)
                 .ToListAsync();
 
@@ -86,6 +121,8 @@
                 .Include(c => c.Skills)
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
+                .Include(cv => cv.Language)
+                .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
 
             if (cv == null) return false;
@@ -98,6 +135,9 @@
             cv.AboutMe = dto.AboutMe;
             cv.PhotoUrl = dto.PhotoUrl;
             cv.TemplateId = dto.TemplateId;
+            cv.Address = dto.Address;
+            cv.WebPage = dto.WebPage;
+            cv.JobTitle = dto.JobTitle;
 
             _context.Skills.RemoveRange(cv.Skills);
             cv.Skills = dto.Skills.Select(s => new SkillModel { Name = s.Name }).ToList();
@@ -114,6 +154,8 @@
                     existing.Description = eduDto.Description;
                     existing.From = eduDto.From;
                     existing.To = eduDto.To;
+                    existing.CVId = cv.Id;
+                    existing.IsCurrent = eduDto.IsCurrent;
                 }
                 else
                 {
@@ -123,7 +165,8 @@
                         Description = eduDto.Description,
                         From = eduDto.From,
                         To = eduDto.To,
-                        CVId = cv.Id
+                        CVId = cv.Id,
+                        IsCurrent = eduDto.IsCurrent
                     });
                 }
             }
@@ -140,6 +183,8 @@
                     existing.Description = empDto.Description;
                     existing.From = empDto.From;
                     existing.To = empDto.To;
+                    existing.CVId = cv.Id;
+                    existing.IsCurrent = empDto.IsCurrent;
                 }
                 else
                 {
@@ -149,6 +194,29 @@
                         Description = empDto.Description,
                         From = empDto.From,
                         To = empDto.To,
+                        CVId = cv.Id,
+                        IsCurrent = empDto.IsCurrent
+                    });
+                }
+            }
+
+            var langIds = dto.Language.Where(l => l.Id != 0).Select(l => l.Id).ToHashSet();
+            _context.LanguageEntries.RemoveRange(cv.Language.Where(l => !langIds.Contains(l.Id)));
+            foreach (var langDto in dto.Language)
+            {
+                var existing = cv.Language.FirstOrDefault(l => l.Id == langDto.Id);
+                if (existing != null)
+                {
+                    existing.LanguageId = langDto.LanguageId;
+                    existing.Level = langDto.Level;
+                    existing.CVId = cv.Id;
+                }
+                else
+                {
+                    cv.Language.Add(new LanguageEntryModel
+                    {
+                        LanguageId = langDto.LanguageId,
+                        Level = langDto.Level,
                         CVId = cv.Id
                     });
                 }
@@ -166,6 +234,8 @@
                 .Include(c => c.Skills)
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
+                .Include(c => c.Language)
+                .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
 
             if (cv == null) return false;
@@ -173,6 +243,7 @@
             _context.Skills.RemoveRange(cv.Skills);
             _context.Educations.RemoveRange(cv.Education);
             _context.Employments.RemoveRange(cv.Employment);
+            _context.LanguageEntries.RemoveRange(cv.Language);
             _context.CVs.Remove(cv);
             await _context.SaveChangesAsync();
             return true;
@@ -200,6 +271,9 @@
             Email = cv.Email,
             AboutMe = cv.AboutMe,
             PhotoUrl = cv.PhotoUrl,
+            Address = cv.Address,
+            WebPage = cv.WebPage,
+            JobTitle = cv.JobTitle,
             CreatedAt = cv.CreatedAtUtc,
             UpdatedAt = cv.UpdatedAtUtc,
             TemplateName = cv.Template?.Name ?? "(unknown)",
@@ -210,7 +284,9 @@
                 InstitutionName = e.InstitutionName,
                 Description = e.Description,
                 From = e.From,
-                To = e.To
+                To = e.To,
+                IsCurrent = e.IsCurrent,
+                CVId = e.CVId
             }).ToList(),
             Employment = cv.Employment.Select(e => new EmploymentEntryDto
             {
@@ -218,7 +294,16 @@
                 CompanyName = e.CompanyName,
                 Description = e.Description,
                 From = e.From,
-                To = e.To
+                To = e.To,
+                IsCurrent = e.IsCurrent,
+                CVId = e.CVId
+            }).ToList(),
+            Language = cv.Language.Select(l => new LanguageEntryDto
+            {
+                Id = l.Id,
+                LanguageId = l.LanguageId,
+                Level = l.Level,
+                CVId = l.CVId
             }).ToList()
         };
 
@@ -228,6 +313,7 @@
                 .Include(c => c.Skills)
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
+                .Include(c => c.Language)
                 .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
         }
