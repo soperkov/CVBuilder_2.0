@@ -51,10 +51,6 @@
             builder.Property(cv => cv.CreatedAtUtc)
                 .HasDefaultValueSql("GETDATE()");
 
-            builder.Property(cv => cv.UpdatedAtUtc)
-                .HasDefaultValueSql("GETDATE()")
-                .ValueGeneratedOnAddOrUpdate();
-
             builder.ToTable("CVs");
         }
     }

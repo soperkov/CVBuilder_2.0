@@ -98,7 +98,6 @@
             cv.AboutMe = dto.AboutMe;
             cv.PhotoUrl = dto.PhotoUrl;
             cv.TemplateId = dto.TemplateId;
-            cv.UpdatedAtUtc = DateTime.UtcNow;
 
             _context.Skills.RemoveRange(cv.Skills);
             cv.Skills = dto.Skills.Select(s => new SkillModel { Name = s.Name }).ToList();
@@ -154,6 +153,8 @@
                     });
                 }
             }
+
+            cv.UpdatedAtUtc = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
