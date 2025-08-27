@@ -1,111 +1,23 @@
-<form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label>Full Name</label>
-    <input formControlName="fullName" />
+<div *ngIf="isLoading">Loading…</div>
+<div *ngIf="!isLoading && loadError">{{ loadError }}</div>
+
+<ng-container *ngIf="!isLoading && loadedCv">
+  <app-cv-form
+    [mode]="'edit'"
+    [value]="loadedCv"
+    (formStatusChanged)="onFormValidityChanged($event)"
+    (formSubmitted)="onFormSubmitted($event)"
+  ></app-cv-form>
+
+  <div class="actions">
+    <button (click)="save()" [disabled]="!canSave">Save</button>
+    <button (click)="openSaveAsModal()" [disabled]="!canSaveAs">Save As</button>
   </div>
 
-  <div>
-    <label>Date of Birth</label>
-    <input type="date" formControlName="dateOfBirth" />
-  </div>
-
-  <div>
-    <label>Phone Number</label>
-    <input formControlName="phoneNumber" />
-  </div>
-
-  <div>
-    <label>Email</label>
-    <input formControlName="email" />
-  </div>
-
-  <div>
-    <label>About Me</label>
-    <textarea formControlName="aboutMe"></textarea>
-  </div>
-
-  <div>
-    <label>Photo URL</label>
-    <input formControlName="photoUrl" />
-  </div>
-
-  <!-- Skills -->
-  <div formArrayName="skills">
-    <label>Skills</label>
-    <div
-      *ngFor="let skill of skills.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input formControlName="name" />
-      <button type="button" (click)="removeSkill(i)">Remove</button>
-    </div>
-    <button type="button" (click)="addSkill()" [disabled]="!canAddSkill">
-      Add Skill
-    </button>
-  </div>
-
-  <!-- Education -->
-  <div formArrayName="education">
-    <label>Education</label>
-    <div
-      *ngFor="let edu of education.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input placeholder="Institution" formControlName="institutionName" />
-      <input placeholder="Description" formControlName="description" />
-      <input type="date" formControlName="from" />
-      <input type="date" formControlName="to" />
-      <button type="button" (click)="removeEducation(i)">Remove</button>
-    </div>
-    <button
-      type="button"
-      (click)="addEducation()"
-      [disabled]="!canAddEducation"
-    >
-      Add Education
-    </button>
-  </div>
-
-  <!-- Employment -->
-  <div formArrayName="employment">
-    <label>Employment</label>
-    <div
-      *ngFor="let emp of employment.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input placeholder="Company" formControlName="companyName" />
-      <input placeholder="Description" formControlName="description" />
-      <input type="date" formControlName="from" />
-      <input type="date" formControlName="to" />
-      <button type="button" (click)="removeEmployment(i)">Remove</button>
-    </div>
-    <button
-      type="button"
-      (click)="addEmployment()"
-      [disabled]="!canAddEmployment"
-    >
-      Add Employment
-    </button>
-  </div>
-
-  <button type="submit" [disabled]="!isFormModified">Save</button>
-  <button type="button" (click)="openSaveModal()" [disabled]="!isFormModified">
-    Save As
-  </button>
-  <button type="button" (click)="openDeleteModal()">Delete</button>
-</form>
-
-<!-- Delete Modal -->
-<app-delete-confirm-modal
-  *ngIf="showDeleteModal"
-  [count]="1"
-  (confirm)="deleteThisCv()"
-  (cancel)="closeDeleteModal()"
-></app-delete-confirm-modal>
-
-<!-- Save As Modal -->
-<app-cv-name-modal
-  *ngIf="showSaveModal"
-  (onSave)="handleSaveAs($event)"
-  (onCancel)="closeSaveModal()"
-></app-cv-name-modal>
+  <!-- Save As Modal -->
+  <app-cv-name-modal
+    *ngIf="showSaveAsModal"
+    (onSave)="handleSaveAs($event)"
+    (onCancel)="closeSaveAsModal()"
+  ></app-cv-name-modal>
+</ng-container>

@@ -276,6 +276,7 @@
             JobTitle = cv.JobTitle,
             CreatedAt = cv.CreatedAtUtc,
             UpdatedAt = cv.UpdatedAtUtc,
+            TemplateId = cv.TemplateId,
             TemplateName = cv.Template?.Name ?? "(unknown)",
             Skills = cv.Skills.Select(s => s.Name).ToList(),
             Education = cv.Education.Select(e => new EducationEntryDto

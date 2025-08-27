@@ -1,15 +1,15 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CreateCvDto } from '../../models';
-import { LanguageLevel } from '../../api-client';
-import { FormControl } from '@angular/forms';
 import {
-  Observable,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  startWith /*, switchMap*/,
-} from 'rxjs';
+  Component,
+  EventEmitter,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
+  Output,
+} from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CreateCvDto, Cv } from '../../models';
+import { LanguageLevel } from '../../api-client';
 import { LanguageService } from '../../services/language.service';
 
 type LangOption = { id: number; code?: string; name: string };
@@ -20,15 +20,19 @@ type LangOption = { id: number; code?: string; name: string };
   templateUrl: './cv-form.component.html',
   styleUrls: ['./cv-form.component.css'],
 })
-export class CVFormComponent implements OnInit {
+export class CVFormComponent implements OnInit, OnChanges {
+  @Input() mode: 'create' | 'edit' = 'create';
+  @Input() value?: Cv | null; // za patch kod edita
+
+  @Output() formStatusChanged = new EventEmitter<boolean>();
+  @Output() formSubmitted = new EventEmitter<CreateCvDto>(); // roditelj će dodati cvName i pozvati create/update
+
   cvForm!: FormGroup;
+
   languageLevels: LanguageLevel[] = Object.values(
     LanguageLevel
   ) as LanguageLevel[];
   availableLanguages: LangOption[] = [];
-
-  @Output() formStatusChanged = new EventEmitter<boolean>();
-  @Output() formSubmitted = new EventEmitter<CreateCvDto>();
 
   constructor(
     private fb: FormBuilder,
@@ -37,8 +41,9 @@ export class CVFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.cvForm = this.fb.group({
+      // bez cvName — dolazi iz modala u roditelju
       fullName: ['', Validators.required],
-      dateOfBirth: ['', Validators.required], // "yyyy-MM-dd"
+      dateOfBirth: [''], // "yyyy-MM-dd"
       phoneNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       aboutMe: [''],
@@ -47,6 +52,7 @@ export class CVFormComponent implements OnInit {
       webPage: [''],
       jobTitle: [''],
       templateId: [null],
+
       skills: this.fb.array([]),
       education: this.fb.array([]),
       employment: this.fb.array([]),
@@ -62,13 +68,37 @@ export class CVFormComponent implements OnInit {
       this.formStatusChanged.emit(this.cvForm.valid);
     });
     this.formStatusChanged.emit(this.cvForm.valid);
+
+    // ako je value već stigao prije OnInit
+    if (this.value) this.applyValue(this.value);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['value'] && !changes['value'].firstChange) {
+      this.applyValue(this.value ?? null);
+    }
+  }
+
+  // ---------- helpers ----------
+  private clearArray(arr: FormArray) {
+    while (arr.length) arr.removeAt(0);
+  }
+  private toDateOnly(v?: string | null): string {
+    if (!v) return '';
+    return v.length >= 10 ? v.substring(0, 10) : v;
+  }
   private attachCurrentToggle(group: FormGroup) {
     const isCurrentCtrl = group.get('isCurrent');
     const toCtrl = group.get('to');
     if (!isCurrentCtrl || !toCtrl) return;
 
+    // initial
+    if (isCurrentCtrl.value === true) {
+      toCtrl.reset(null, { emitEvent: false });
+      toCtrl.disable({ emitEvent: false });
+    }
+
+    // changes
     isCurrentCtrl.valueChanges.subscribe((isCurr: boolean) => {
       if (isCurr) {
         toCtrl.reset(null, { emitEvent: false });
@@ -78,15 +108,93 @@ export class CVFormComponent implements OnInit {
       }
       group.updateValueAndValidity({ onlySelf: true });
     });
-
-    const initial = (isCurrentCtrl as any).value as boolean;
-    if (initial) {
-      toCtrl.reset(null, { emitEvent: false });
-      toCtrl.disable({ emitEvent: false });
-    }
   }
 
-  // ===== FormArrays =====
+  private makeSkillGroup(init?: any) {
+    const name = typeof init === 'string' ? init : init?.name ?? '';
+    return this.fb.group({
+      name: [name, [Validators.required, Validators.minLength(1)]],
+    });
+  }
+  private makeEducationGroup(init?: any) {
+    const g = this.fb.group({
+      id: [init?.id ?? null],
+      institutionName: [init?.institutionName ?? '', Validators.required],
+      description: [init?.description ?? ''],
+      from: [this.toDateOnly(init?.from) ?? '', Validators.required],
+      to: [{ value: this.toDateOnly(init?.to) ?? null, disabled: false }],
+      isCurrent: this.fb.nonNullable.control(!!init?.isCurrent),
+    });
+    this.attachCurrentToggle(g);
+    return g;
+  }
+  private makeEmploymentGroup(init?: any) {
+    const g = this.fb.group({
+      id: [init?.id ?? null],
+      companyName: [init?.companyName ?? '', Validators.required],
+      description: [init?.description ?? ''],
+      from: [this.toDateOnly(init?.from) ?? '', Validators.required],
+      to: [{ value: this.toDateOnly(init?.to) ?? null, disabled: false }],
+      isCurrent: this.fb.nonNullable.control(!!init?.isCurrent),
+    });
+    this.attachCurrentToggle(g);
+    return g;
+  }
+  private makeLanguageGroup(init?: any) {
+    return this.fb.group({
+      id: [init?.id ?? null],
+      languageId: [init?.languageId ?? null, Validators.required],
+      level: [init?.level ?? null, Validators.required], // broj ili enum vrijednost iz NSwag-a
+    });
+  }
+
+  private applyValue(cv: Cv | null) {
+    if (!cv) {
+      this.cvForm.reset();
+      this.clearArray(this.skills);
+      this.clearArray(this.education);
+      this.clearArray(this.employment);
+      this.clearArray(this.language);
+      return;
+    }
+
+    this.cvForm.patchValue({
+      fullName: cv.fullName ?? '',
+      dateOfBirth: this.toDateOnly(cv.dateOfBirth ?? null),
+      phoneNumber: cv.phoneNumber ?? '',
+      email: cv.email ?? '',
+      aboutMe: cv.aboutMe ?? '',
+      photoUrl: cv.photoUrl ?? '',
+      address: (cv as any).address ?? '',
+      webPage: (cv as any).webPage ?? '',
+      jobTitle: (cv as any).jobTitle ?? '',
+      templateId: cv.templateId ?? null,
+    });
+
+    this.clearArray(this.skills);
+    (cv.skills ?? []).forEach((s: any) => {
+      this.skills.push(this.makeSkillGroup(s));
+    });
+
+    this.clearArray(this.education);
+    (cv.education ?? []).forEach((e) =>
+      this.education.push(this.makeEducationGroup(e))
+    );
+
+    this.clearArray(this.employment);
+    (cv.employment ?? []).forEach((e) =>
+      this.employment.push(this.makeEmploymentGroup(e))
+    );
+
+    this.clearArray(this.language);
+    // pozor: u modelu si kolekciju nazvala Language (singular) – ako je plural, promijeni ovdje
+    const langs = (cv as any).language ?? (cv as any).languages ?? [];
+    langs.forEach((l: any) => this.language.push(this.makeLanguageGroup(l)));
+
+    this.cvForm.markAsPristine();
+  }
+
+  // ---------- getters ----------
   get skills(): FormArray {
     return this.cvForm.get('skills') as FormArray;
   }
@@ -100,97 +208,69 @@ export class CVFormComponent implements OnInit {
     return this.cvForm.get('language') as FormArray;
   }
 
-  // ===== Can-add getters =====
-  get canAddSkill(): boolean {
-    const arr = this.skills;
-    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  // can-add
+  get canAddSkill() {
+    const a = this.skills;
+    return a.length === 0 || a.at(a.length - 1).valid;
   }
-  get canAddEducation(): boolean {
-    const arr = this.education;
-    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  get canAddEducation() {
+    const a = this.education;
+    return a.length === 0 || a.at(a.length - 1).valid;
   }
-  get canAddEmployment(): boolean {
-    const arr = this.employment;
-    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  get canAddEmployment() {
+    const a = this.employment;
+    return a.length === 0 || a.at(a.length - 1).valid;
   }
-  get canAddLanguage(): boolean {
-    const arr = this.language;
-    return arr.length === 0 || arr.at(arr.length - 1).valid;
+  get canAddLanguage() {
+    const a = this.language;
+    return a.length === 0 || a.at(a.length - 1).valid;
   }
 
-  // ===== Add / Remove =====
-  addSkill(): void {
-    if (!this.canAddSkill) return;
-    this.skills.push(
-      this.fb.group({
-        name: ['', [Validators.required, Validators.minLength(1)]],
-      })
-    );
+  // add/remove
+  addSkill() {
+    if (this.canAddSkill) this.skills.push(this.makeSkillGroup());
   }
-  removeSkill(index: number): void {
-    this.skills.removeAt(index);
+  removeSkill(i: number) {
+    this.skills.removeAt(i);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  addEducation(): void {
-    if (!this.canAddEducation) return;
-    const group = this.fb.group({
-      institutionName: ['', Validators.required],
-      description: [''],
-      from: ['', Validators.required], // "yyyy-MM-dd"
-      to: [{ value: null, disabled: false }],
-      isCurrent: this.fb.nonNullable.control(false),
-    });
-    this.attachCurrentToggle(group);
-    this.education.push(group);
+  addEducation() {
+    if (this.canAddEducation) this.education.push(this.makeEducationGroup());
   }
-  removeEducation(index: number): void {
-    this.education.removeAt(index);
+  removeEducation(i: number) {
+    this.education.removeAt(i);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  addEmployment(): void {
-    if (!this.canAddEmployment) return;
-    const group = this.fb.group({
-      companyName: ['', Validators.required],
-      description: [''],
-      from: ['', Validators.required],
-      to: [{ value: null, disabled: false }],
-      isCurrent: this.fb.nonNullable.control(false),
-    });
-    this.attachCurrentToggle(group);
-    this.employment.push(group);
+  addEmployment() {
+    if (this.canAddEmployment) this.employment.push(this.makeEmploymentGroup());
   }
-  removeEmployment(index: number): void {
-    this.employment.removeAt(index);
+  removeEmployment(i: number) {
+    this.employment.removeAt(i);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
-  addLanguage(): void {
-    if (!this.canAddLanguage) return;
-    this.language.push(
-      this.fb.group({
-        languageId: [null, Validators.required],
-        level: [null, Validators.required],
-      })
-    );
+  addLanguage() {
+    if (this.canAddLanguage) this.language.push(this.makeLanguageGroup());
   }
-
-  removeLanguage(index: number): void {
-    this.language.removeAt(index);
+  removeLanguage(i: number) {
+    this.language.removeAt(i);
     this.cvForm.markAsDirty();
     this.cvForm.updateValueAndValidity();
   }
 
   displayLanguageName = (l?: LangOption): string => (l ? l.name : '');
 
+  // ---------- DTO builder ----------
+  // koristimo getRawValue da pokupimo i 'to' kad je disabled
   buildCreateDto(): CreateCvDto {
-    const v = this.cvForm.value;
+    const v = this.cvForm.getRawValue() as any;
     const dto: CreateCvDto = {
-      cvName: v.cvName ?? '',
+      cvName: '', // roditelj će postaviti kroz modal
       fullName: v.fullName ?? '',
       dateOfBirth: v.dateOfBirth ?? null,
       phoneNumber: v.phoneNumber ?? '',
@@ -201,34 +281,38 @@ export class CVFormComponent implements OnInit {
       webPage: v.webPage ?? '',
       jobTitle: v.jobTitle ?? '',
       templateId: v.templateId ?? null,
+
       skills: (v.skills || []).map((s: any) => ({ name: s.name })),
+
       education: (v.education || []).map((e: any) => ({
-        id: e.id,
+        id: e.id ?? 0,
         institutionName: e.institutionName,
         description: e.description ?? '',
         from: e.from,
-        to: e.to,
-        isCurrent: e.isCurrent,
+        to: e.isCurrent ? null : e.to,
+        isCurrent: !!e.isCurrent,
       })),
+
       employment: (v.employment || []).map((e: any) => ({
-        id: e.id,
+        id: e.id ?? 0,
         companyName: e.companyName,
         description: e.description ?? '',
         from: e.from,
-        to: e.to,
-        isCurrent: e.isCurrent,
+        to: e.isCurrent ? null : e.to,
+        isCurrent: !!e.isCurrent,
       })),
-      language: Array.isArray((v as any).language)
-        ? (v as any).language.map((e: any) => ({
-            languageId: e.languageId,
-            level: e.level,
-          }))
-        : [],
+
+      // u tvom backendu kolekcija je "Language" (singular); DTO ključ držiš kao "language"
+      language: (v.language || []).map((l: any) => ({
+        id: l.id ?? 0,
+        languageId: Number(l.languageId),
+        level: l.level as LanguageLevel,
+      })),
     };
     return dto;
   }
 
-  // ===== Submit =====
+  // submit — roditelj odlučuje je li create ili update i dodaje cvName
   onSubmit(): void {
     if (this.cvForm.invalid) return;
     this.formSubmitted.emit(this.buildCreateDto());

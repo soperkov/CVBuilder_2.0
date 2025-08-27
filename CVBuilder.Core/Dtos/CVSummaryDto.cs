@@ -14,7 +14,8 @@
         public string? WebPage { get; set; }
         public string? JobTitle { get; set; }
 
-        public string TemplateName { get; set; }
+        public int? TemplateId { get; set; }
+        public string? TemplateName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
