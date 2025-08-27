@@ -8,12 +8,14 @@
         private readonly ICVService _cvService;
         private readonly IPlaywrightPdfService _pdf;
         private readonly IDownloadTicketService _tickets;
+        private readonly IUploadsService _uploads;
 
-        public CVController(ICVService cvService, IPlaywrightPdfService pdf, IDownloadTicketService tickets)
+        public CVController(ICVService cvService, IPlaywrightPdfService pdf, IDownloadTicketService tickets, IUploadsService uploads)
         {
             _cvService = cvService;
             _pdf = pdf;
             _tickets = tickets;
+            _uploads = uploads;
         }
 
         private int GetUserId()
@@ -162,6 +164,18 @@
             return File(bytes, "application/pdf", name);
         }
 
+        [HttpPost("{id:int}/photo")]
+        [RequestSizeLimit(5 * 1024 * 1024)]
+        public async Task<IActionResult> UploadAndAttachPhoto(int id, [FromForm] IFormFile file, CancellationToken ct)
+        {
+            var userId = GetUserId();
+            if (file is null) return BadRequest("No file.");
+
+            var up = await _uploads.SavePrivatePhotoAsync(file, ct);
+            await _cvService.SetPhotoAsync(id, userId, up.Path, ct);
+
+            return Ok(new { path = up.Path });
+        }
     }
 }
 

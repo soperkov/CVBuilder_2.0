@@ -8,6 +8,7 @@ global using System.Security.Claims;
 global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.Extensions.Configuration;
+global using Microsoft.AspNetCore.Http;
 
 global using CVBuilder.Core.Settings;
 global using CVBuilder.Core.Models;

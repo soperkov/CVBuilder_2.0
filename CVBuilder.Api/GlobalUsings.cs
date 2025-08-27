@@ -16,6 +16,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.Components;
+global using Microsoft.AspNetCore.Http;
 
 global using System.Security.Claims;
 global using System.Security.Cryptography;

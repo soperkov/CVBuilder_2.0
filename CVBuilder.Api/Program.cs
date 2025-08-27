@@ -37,6 +37,7 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<ICVService, CVService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ILanguageService, LanguageService>();
+            builder.Services.AddScoped<IUploadsService, UploadsService>();
 
             builder.Services.AddSingleton<ITemplateCatalog>(sp =>
             {

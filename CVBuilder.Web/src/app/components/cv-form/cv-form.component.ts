@@ -3,6 +3,7 @@ import {
   EventEmitter,
   OnInit,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   Input,
   Output,
@@ -11,6 +12,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CreateCvDto, Cv } from '../../models';
 import { LanguageLevel } from '../../api-client';
 import { LanguageService } from '../../services/language.service';
+import { UploadsService } from '../../services/uploads.service';
 
 type LangOption = { id: number; code?: string; name: string };
 
@@ -20,12 +22,12 @@ type LangOption = { id: number; code?: string; name: string };
   templateUrl: './cv-form.component.html',
   styleUrls: ['./cv-form.component.css'],
 })
-export class CVFormComponent implements OnInit, OnChanges {
+export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: 'create' | 'edit' = 'create';
-  @Input() value?: Cv | null; // za patch kod edita
+  @Input() value?: Cv | null;
 
   @Output() formStatusChanged = new EventEmitter<boolean>();
-  @Output() formSubmitted = new EventEmitter<CreateCvDto>(); // roditelj će dodati cvName i pozvati create/update
+  @Output() formSubmitted = new EventEmitter<CreateCvDto>();
 
   cvForm!: FormGroup;
 
@@ -34,14 +36,23 @@ export class CVFormComponent implements OnInit, OnChanges {
   ) as LanguageLevel[];
   availableLanguages: LangOption[] = [];
 
+  // upload/preview
+  photoPreviewUrl: string | null = null;
+  uploadingPhoto = false;
+
+  hasUploadedOnce = false;
+  get uploadLabel(): string {
+    return this.mode === 'edit' || this.hasUploadedOnce ? 'Change' : 'Upload';
+  }
+
   constructor(
     private fb: FormBuilder,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private uploads: UploadsService
   ) {}
 
   ngOnInit(): void {
     this.cvForm = this.fb.group({
-      // bez cvName — dolazi iz modala u roditelju
       fullName: ['', Validators.required],
       dateOfBirth: [''], // "yyyy-MM-dd"
       phoneNumber: ['', Validators.required],
@@ -69,7 +80,6 @@ export class CVFormComponent implements OnInit, OnChanges {
     });
     this.formStatusChanged.emit(this.cvForm.valid);
 
-    // ako je value već stigao prije OnInit
     if (this.value) this.applyValue(this.value);
   }
 
@@ -77,6 +87,36 @@ export class CVFormComponent implements OnInit, OnChanges {
     if (changes['value'] && !changes['value'].firstChange) {
       this.applyValue(this.value ?? null);
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+  }
+
+  // ---------- upload & preview ----------
+  onPhotoSelected(evt: Event) {
+    const input = evt.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    this.photoPreviewUrl = URL.createObjectURL(file);
+
+    this.uploadingPhoto = true;
+    this.uploads.uploadPhoto(file).subscribe({
+      next: (res) => {
+        this.cvForm.patchValue({ photoUrl: res.path });
+        this.cvForm.markAsDirty();
+        this.hasUploadedOnce = true;
+      },
+      error: (err) => console.error('[Upload photo] failed', err),
+      complete: () => (this.uploadingPhoto = false),
+    });
+  }
+
+  setPreviewFromBlob(blob: Blob) {
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    this.photoPreviewUrl = URL.createObjectURL(blob);
   }
 
   // ---------- helpers ----------
@@ -93,13 +133,13 @@ export class CVFormComponent implements OnInit, OnChanges {
     if (!isCurrentCtrl || !toCtrl) return;
 
     // initial
-    if (isCurrentCtrl.value === true) {
+    if (!!isCurrentCtrl.value) {
       toCtrl.reset(null, { emitEvent: false });
       toCtrl.disable({ emitEvent: false });
     }
 
-    // changes
-    isCurrentCtrl.valueChanges.subscribe((isCurr: boolean) => {
+    isCurrentCtrl.valueChanges.subscribe((val: boolean | null) => {
+      const isCurr = !!val;
       if (isCurr) {
         toCtrl.reset(null, { emitEvent: false });
         toCtrl.disable({ emitEvent: false });
@@ -144,7 +184,7 @@ export class CVFormComponent implements OnInit, OnChanges {
     return this.fb.group({
       id: [init?.id ?? null],
       languageId: [init?.languageId ?? null, Validators.required],
-      level: [init?.level ?? null, Validators.required], // broj ili enum vrijednost iz NSwag-a
+      level: [init?.level ?? null, Validators.required],
     });
   }
 
@@ -172,9 +212,9 @@ export class CVFormComponent implements OnInit, OnChanges {
     });
 
     this.clearArray(this.skills);
-    (cv.skills ?? []).forEach((s: any) => {
-      this.skills.push(this.makeSkillGroup(s));
-    });
+    (cv.skills ?? []).forEach((s: any) =>
+      this.skills.push(this.makeSkillGroup(s))
+    );
 
     this.clearArray(this.education);
     (cv.education ?? []).forEach((e) =>
@@ -187,9 +227,32 @@ export class CVFormComponent implements OnInit, OnChanges {
     );
 
     this.clearArray(this.language);
-    // pozor: u modelu si kolekciju nazvala Language (singular) – ako je plural, promijeni ovdje
     const langs = (cv as any).language ?? (cv as any).languages ?? [];
     langs.forEach((l: any) => this.language.push(this.makeLanguageGroup(l)));
+
+    if (!cv || !cv.photoUrl) {
+      this.hasUploadedOnce = false;
+      if (this.photoPreviewUrl) {
+        URL.revokeObjectURL(this.photoPreviewUrl);
+        this.photoPreviewUrl = null;
+      }
+    } else {
+      const p = cv.photoUrl;
+      if (/^https?:\/\//i.test(p)) {
+        this.photoPreviewUrl = p;
+        this.hasUploadedOnce = true;
+      } else {
+        this.uploads.getPhotoAsBlob(p).subscribe({
+          next: (blob) => {
+            this.setPreviewFromBlob(blob);
+            this.hasUploadedOnce = true;
+          },
+          error: (err) => console.error('[Photo preview] failed', err),
+        });
+      }
+    }
+
+    this.cvForm.markAsPristine();
 
     this.cvForm.markAsPristine();
   }
@@ -265,12 +328,10 @@ export class CVFormComponent implements OnInit, OnChanges {
 
   displayLanguageName = (l?: LangOption): string => (l ? l.name : '');
 
-  // ---------- DTO builder ----------
-  // koristimo getRawValue da pokupimo i 'to' kad je disabled
   buildCreateDto(): CreateCvDto {
     const v = this.cvForm.getRawValue() as any;
     const dto: CreateCvDto = {
-      cvName: '', // roditelj će postaviti kroz modal
+      cvName: '',
       fullName: v.fullName ?? '',
       dateOfBirth: v.dateOfBirth ?? null,
       phoneNumber: v.phoneNumber ?? '',
@@ -302,7 +363,6 @@ export class CVFormComponent implements OnInit, OnChanges {
         isCurrent: !!e.isCurrent,
       })),
 
-      // u tvom backendu kolekcija je "Language" (singular); DTO ključ držiš kao "language"
       language: (v.language || []).map((l: any) => ({
         id: l.id ?? 0,
         languageId: Number(l.languageId),
@@ -312,7 +372,6 @@ export class CVFormComponent implements OnInit, OnChanges {
     return dto;
   }
 
-  // submit — roditelj odlučuje je li create ili update i dodaje cvName
   onSubmit(): void {
     if (this.cvForm.invalid) return;
     this.formSubmitted.emit(this.buildCreateDto());

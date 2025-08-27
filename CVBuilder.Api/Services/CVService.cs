@@ -260,6 +260,14 @@
             await _context.SaveChangesAsync();
         }
 
+        public async Task<string?> GetPhotoUrl(int id, int userId, CancellationToken ct = default)
+        {
+            return await _context.CVs
+                .Where(c => c.Id == id && c.CreatedByUser == userId)
+                .Select(c => c.PhotoUrl)
+                .FirstOrDefaultAsync(ct);
+        }
+
 
         private static CVSummaryDto MapToDto(CVModel cv) => new()
         {
@@ -317,6 +325,20 @@
                 .Include(c => c.Language)
                 .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+        }
+
+        public async Task SetPhotoAsync(int id, int userId, string relativePath, CancellationToken ct = default)
+        {
+            var cv = await _context.CVs
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
+
+            if (cv == null)
+                throw new KeyNotFoundException("CV not found or not yours.");
+
+            cv.PhotoUrl = relativePath;
+            cv.UpdatedAtUtc = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(ct);
         }
 
     }

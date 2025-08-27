@@ -1,4 +1,57 @@
 <form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
+  <div
+    style="
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    "
+  >
+    <div
+      *ngIf="mode === 'edit' || photoPreviewUrl"
+      style="
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafafa;
+      "
+    >
+      <ng-container *ngIf="photoPreviewUrl; else noPhoto">
+        <img
+          [src]="photoPreviewUrl"
+          alt="Photo preview"
+          style="max-width: 100%; max-height: 100%; object-fit: cover"
+        />
+      </ng-container>
+      <ng-template #noPhoto>
+        <span style="font-size: 10px; color: #999">no photo</span>
+      </ng-template>
+    </div>
+
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      (change)="onPhotoSelected($event)"
+      hidden
+    />
+    <button
+      type="button"
+      (click)="fileInput.click()"
+      [disabled]="uploadingPhoto"
+    >
+      {{ uploadLabel }}
+    </button>
+    <span *ngIf="uploadingPhoto" style="font-size: 12px; color: #666"
+      >Uploading…</span
+    >
+  </div>
+
   <div>
     <label>Full Name*</label>
     <input formControlName="fullName" />
@@ -39,17 +92,13 @@
     <input formControlName="webPage" />
   </div>
 
-  <div>
-    <label>Photo URL</label>
-    <input formControlName="photoUrl" />
-  </div>
+  <input formControlName="photoUrl" type="hidden" />
 
   <div>
     <label>Template ID</label>
     <input formControlName="templateId" type="number" />
   </div>
 
-  <!-- Skills -->
   <div formArrayName="skills">
     <label>Skills</label>
     <div
@@ -59,13 +108,11 @@
       <input formControlName="name" />
       <button type="button" (click)="removeSkill(i)">Remove</button>
     </div>
-
     <button type="button" (click)="addSkill()" [disabled]="!canAddSkill">
       Add Skill
     </button>
   </div>
 
-  <!-- Education -->
   <div formArrayName="education">
     <label>Education</label>
     <div
@@ -82,7 +129,6 @@
       </label>
       <button type="button" (click)="removeEducation(i)">Remove</button>
     </div>
-
     <button
       type="button"
       (click)="addEducation()"
@@ -92,7 +138,6 @@
     </button>
   </div>
 
-  <!-- Employment -->
   <div formArrayName="employment">
     <label>Employment</label>
     <div
@@ -109,7 +154,6 @@
       </label>
       <button type="button" (click)="removeEmployment(i)">Remove</button>
     </div>
-
     <button
       type="button"
       (click)="addEmployment()"
@@ -119,15 +163,12 @@
     </button>
   </div>
 
-  <!-- Languages -->
   <div formArrayName="language">
     <label>Languages</label>
-
     <div
       *ngFor="let grp of language.controls; let i = index"
       [formGroupName]="i"
     >
-      <!-- Jezik -->
       <label>
         Language
         <select formControlName="languageId">
@@ -138,7 +179,6 @@
         </select>
       </label>
 
-      <!-- Level -->
       <label style="margin-left: 12px">
         Level
         <select formControlName="level">
@@ -157,9 +197,10 @@
         Remove
       </button>
     </div>
-
     <button type="button" (click)="addLanguage()" [disabled]="!canAddLanguage">
       Add Language
     </button>
   </div>
+
+  <button type="submit" hidden></button>
 </form>

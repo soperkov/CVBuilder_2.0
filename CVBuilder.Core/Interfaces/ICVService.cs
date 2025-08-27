@@ -10,5 +10,7 @@
         Task DeleteManyAsync(IEnumerable<int> ids);
 
         Task<CVModel?> GetCvForRenderAsync(int id, int userId);
+        Task<string?> GetPhotoUrl(int id, int userId, CancellationToken ct = default);
+        Task SetPhotoAsync(int id, int userId, string relativePath, CancellationToken ct = default);
     }
 }
