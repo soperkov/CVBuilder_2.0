@@ -1,55 +1,73 @@
 <form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
-  <div
-    style="
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    "
-  >
+  <div>
+    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem"
+      >CV photo</label
+    >
+
     <div
-      *ngIf="mode === 'edit' || photoPreviewUrl"
       style="
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid #ddd;
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: #fafafa;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
       "
     >
-      <ng-container *ngIf="photoPreviewUrl; else noPhoto">
-        <img
-          [src]="photoPreviewUrl"
-          alt="Photo preview"
-          style="max-width: 100%; max-height: 100%; object-fit: cover"
-        />
-      </ng-container>
-      <ng-template #noPhoto>
-        <span style="font-size: 10px; color: #999">no photo</span>
-      </ng-template>
-    </div>
+      <div
+        *ngIf="mode === 'edit' || photoPreviewUrl"
+        style="
+          width: 60px;
+          height: 60px;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid #ddd;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #fafafa;
+        "
+      >
+        <ng-container *ngIf="photoPreviewUrl; else noPhoto">
+          <img
+            [src]="photoPreviewUrl"
+            alt="Photo preview"
+            style="max-width: 100%; max-height: 100%; object-fit: cover"
+          />
+        </ng-container>
+        <ng-template #noPhoto>
+          <span style="font-size: 10px; color: #999">no photo</span>
+        </ng-template>
+      </div>
 
-    <input
-      #fileInput
-      type="file"
-      accept="image/*"
-      (change)="onPhotoSelected($event)"
-      hidden
-    />
-    <button
-      type="button"
-      (click)="fileInput.click()"
-      [disabled]="uploadingPhoto"
-    >
-      {{ uploadLabel }}
-    </button>
-    <span *ngIf="uploadingPhoto" style="font-size: 12px; color: #666"
-      >Uploading…</span
-    >
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        (change)="onPhotoSelected($event)"
+        hidden
+      />
+
+      <button
+        type="button"
+        (click)="fileInput.click()"
+        [disabled]="uploadingPhoto"
+      >
+        {{ uploadLabel }}
+      </button>
+
+      <button
+        type="button"
+        (click)="deletePhoto()"
+        [disabled]="
+          uploadingPhoto || !(photoPreviewUrl || cvForm.get('photoUrl')?.value)
+        "
+      >
+        Remove
+      </button>
+
+      <span *ngIf="uploadingPhoto" style="font-size: 12px; color: #666">
+        Uploading…
+      </span>
+    </div>
   </div>
 
   <div>

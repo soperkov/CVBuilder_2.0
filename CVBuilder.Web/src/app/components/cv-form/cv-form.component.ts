@@ -36,7 +36,6 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   ) as LanguageLevel[];
   availableLanguages: LangOption[] = [];
 
-  // upload/preview
   photoPreviewUrl: string | null = null;
   uploadingPhoto = false;
 
@@ -54,7 +53,7 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.cvForm = this.fb.group({
       fullName: ['', Validators.required],
-      dateOfBirth: [''], // "yyyy-MM-dd"
+      dateOfBirth: [''],
       phoneNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       aboutMe: [''],
@@ -90,7 +89,7 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    this.revokeBlobUrl();
   }
 
   // ---------- upload & preview ----------
@@ -99,13 +98,14 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
 
-    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    // local preview immediately
+    this.revokeBlobUrl();
     this.photoPreviewUrl = URL.createObjectURL(file);
 
     this.uploadingPhoto = true;
     this.uploads.uploadPhoto(file).subscribe({
       next: (res) => {
-        this.cvForm.patchValue({ photoUrl: res.path });
+        this.cvForm.patchValue({ photoUrl: res.path ?? null });
         this.cvForm.markAsDirty();
         this.hasUploadedOnce = true;
       },
@@ -114,9 +114,24 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  setPreviewFromBlob(blob: Blob) {
-    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+  deletePhoto(): void {
+    this.revokeBlobUrl();
+    this.photoPreviewUrl = null;
+    this.cvForm.get('photoUrl')?.setValue(null);
+    this.cvForm.markAsDirty();
+    this.cvForm.updateValueAndValidity();
+    this.hasUploadedOnce = false;
+  }
+
+  private setPreviewFromBlob(blob: Blob) {
+    this.revokeBlobUrl();
     this.photoPreviewUrl = URL.createObjectURL(blob);
+  }
+
+  private revokeBlobUrl() {
+    if (this.photoPreviewUrl && this.photoPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(this.photoPreviewUrl);
+    }
   }
 
   // ---------- helpers ----------
@@ -132,7 +147,6 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     const toCtrl = group.get('to');
     if (!isCurrentCtrl || !toCtrl) return;
 
-    // initial
     if (!!isCurrentCtrl.value) {
       toCtrl.reset(null, { emitEvent: false });
       toCtrl.disable({ emitEvent: false });
@@ -195,6 +209,7 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
       this.clearArray(this.education);
       this.clearArray(this.employment);
       this.clearArray(this.language);
+      this.deletePhoto();
       return;
     }
 
@@ -230,15 +245,14 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     const langs = (cv as any).language ?? (cv as any).languages ?? [];
     langs.forEach((l: any) => this.language.push(this.makeLanguageGroup(l)));
 
-    if (!cv || !cv.photoUrl) {
+    if (!cv.photoUrl) {
       this.hasUploadedOnce = false;
-      if (this.photoPreviewUrl) {
-        URL.revokeObjectURL(this.photoPreviewUrl);
-        this.photoPreviewUrl = null;
-      }
+      this.revokeBlobUrl();
+      this.photoPreviewUrl = null;
     } else {
       const p = cv.photoUrl;
       if (/^https?:\/\//i.test(p)) {
+        this.revokeBlobUrl();
         this.photoPreviewUrl = p;
         this.hasUploadedOnce = true;
       } else {
@@ -247,12 +261,15 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
             this.setPreviewFromBlob(blob);
             this.hasUploadedOnce = true;
           },
-          error: (err) => console.error('[Photo preview] failed', err),
+          error: (err) => {
+            console.error('[Photo preview] failed', err);
+            this.hasUploadedOnce = false;
+            this.revokeBlobUrl();
+            this.photoPreviewUrl = null;
+          },
         });
       }
     }
-
-    this.cvForm.markAsPristine();
 
     this.cvForm.markAsPristine();
   }
