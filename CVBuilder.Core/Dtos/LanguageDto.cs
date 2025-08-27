@@ -1,4 +1,9 @@
 ﻿namespace CVBuilder.Core.Dtos
 {
-    public record LanguageDto(int Id, string Code, string Name);
+    public class LanguageDto
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } = "";
+        public string Name { get; set; } = "";
+    }
 }

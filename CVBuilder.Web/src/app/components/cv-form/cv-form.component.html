@@ -1,7 +1,12 @@
 <form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
   <div>
-    <label>Full Name</label>
+    <label>Full Name*</label>
     <input formControlName="fullName" />
+  </div>
+
+  <div>
+    <label>Job Title</label>
+    <input formControlName="jobTitle" />
   </div>
 
   <div>
@@ -10,18 +15,28 @@
   </div>
 
   <div>
-    <label>Phone Number</label>
+    <label>Phone Number*</label>
     <input formControlName="phoneNumber" />
   </div>
 
   <div>
-    <label>Email</label>
+    <label>Email*</label>
     <input type="email" formControlName="email" />
+  </div>
+
+  <div>
+    <label>Address</label>
+    <input formControlName="address" />
   </div>
 
   <div>
     <label>About Me</label>
     <textarea formControlName="aboutMe"></textarea>
+  </div>
+
+  <div>
+    <label>Webpage</label>
+    <input formControlName="webPage" />
   </div>
 
   <div>
@@ -61,6 +76,10 @@
       <input placeholder="Description" formControlName="description" />
       <input type="date" formControlName="from" />
       <input type="date" formControlName="to" />
+      <label>
+        <input type="checkbox" formControlName="isCurrent" />
+        Currently
+      </label>
       <button type="button" (click)="removeEducation(i)">Remove</button>
     </div>
 
@@ -84,6 +103,10 @@
       <input placeholder="Description" formControlName="description" />
       <input type="date" formControlName="from" />
       <input type="date" formControlName="to" />
+      <label>
+        <input type="checkbox" formControlName="isCurrent" />
+        Currently
+      </label>
       <button type="button" (click)="removeEmployment(i)">Remove</button>
     </div>
 
@@ -93,6 +116,50 @@
       [disabled]="!canAddEmployment"
     >
       Add Employment
+    </button>
+  </div>
+
+  <!-- Languages -->
+  <div formArrayName="language">
+    <label>Languages</label>
+
+    <div
+      *ngFor="let grp of language.controls; let i = index"
+      [formGroupName]="i"
+    >
+      <!-- Jezik -->
+      <label>
+        Language
+        <select formControlName="languageId">
+          <option [ngValue]="null">-- Select language --</option>
+          <option *ngFor="let l of availableLanguages" [ngValue]="l.id">
+            {{ l.name }}
+          </option>
+        </select>
+      </label>
+
+      <!-- Level -->
+      <label style="margin-left: 12px">
+        Level
+        <select formControlName="level">
+          <option [ngValue]="null">-- Select level --</option>
+          <option *ngFor="let lvl of languageLevels" [ngValue]="lvl">
+            {{ lvl }}
+          </option>
+        </select>
+      </label>
+
+      <button
+        type="button"
+        (click)="removeLanguage(i)"
+        style="margin-left: 12px"
+      >
+        Remove
+      </button>
+    </div>
+
+    <button type="button" (click)="addLanguage()" [disabled]="!canAddLanguage">
+      Add Language
     </button>
   </div>
 </form>

@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CvFormComponent } from './cv-form.component';
+import { CVFormComponent } from './cv-form.component';
 
 describe('CvFormComponent', () => {
-  let component: CvFormComponent;
-  let fixture: ComponentFixture<CvFormComponent>;
+  let component: CVFormComponent;
+  let fixture: ComponentFixture<CVFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CvFormComponent]
-    })
-    .compileComponents();
+      declarations: [CVFormComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(CvFormComponent);
+    fixture = TestBed.createComponent(CVFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

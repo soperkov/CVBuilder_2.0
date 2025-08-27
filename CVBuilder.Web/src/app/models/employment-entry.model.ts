@@ -3,5 +3,6 @@ export interface EmploymentEntry {
   companyName: string;
   description?: string;
   from: string;
-  to: string;
+  to?: string | null;
+  isCurrent: boolean;
 }

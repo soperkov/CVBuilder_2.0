@@ -1,8 +1,4 @@
-﻿using CVBuilder.Api.Services;
-using CVBuilder.Core.Interfaces;
-using Microsoft.Extensions.Configuration.UserSecrets;
-
-namespace CVBuilder.Api.Controllers
+﻿namespace CVBuilder.Api.Controllers
 {
     [Authorize]
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]

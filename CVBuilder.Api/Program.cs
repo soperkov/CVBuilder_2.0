@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CVBuilder.Api
 {
     public class Program
@@ -20,15 +22,21 @@ namespace CVBuilder.Api
                     });
             });
 
+            builder.Services.AddControllers().AddJsonOptions(o =>
+            {
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddDatabase(builder.Configuration);
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ICVService, CVService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ILanguageService, LanguageService>();
 
             builder.Services.AddSingleton<ITemplateCatalog>(sp =>
             {
@@ -112,6 +120,13 @@ namespace CVBuilder.Api
             app.UseAuthorization();
 
             app.UseStaticFiles();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(o =>
+            {
+                o.SwaggerEndpoint("/swagger/v1/swagger.json", "CVBuilder.Api v1");
+            });
 
             app.MapControllers();
 

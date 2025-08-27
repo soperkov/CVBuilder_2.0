@@ -4,6 +4,7 @@ import type { Template } from './template.model';
 import type { Skill } from './skill.model';
 import type { EducationEntry } from './education-entry.model';
 import type { EmploymentEntry } from './employment-entry.model';
+import { LanguageEntry } from './language-entry.model';
 
 export interface Cv {
   id: number;
@@ -19,10 +20,14 @@ export interface Cv {
   email: string;
   aboutMe?: string | null;
   photoUrl?: string | null;
+  address?: string | null;
+  webPage?: string | null;
+  jobTitle?: string | null;
 
   skills: Skill[];
   education?: EducationEntry[] | null;
   employment?: EmploymentEntry[] | null;
+  language?: LanguageEntry[] | null;
 
   templateId?: number | null;
   template?: Template | null;
@@ -50,10 +55,14 @@ export interface CreateCvDto {
   email: string;
   aboutMe?: string | null;
   photoUrl?: string | null;
+  address?: string | null;
+  webPage?: string | null;
+  jobTitle?: string | null;
 
   skills: Skill[] | null;
   education?: EducationEntry[] | null;
   employment?: EmploymentEntry[] | null;
+  language?: LanguageEntry[] | null;
 
   templateId?: number | null;
 }

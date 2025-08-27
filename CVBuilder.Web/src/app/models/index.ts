@@ -5,3 +5,4 @@ export * from './employment-entry.model';
 export * from './template.model';
 export * from './user.model';
 export * from './auth.model';
+export * from './language-entry.model';

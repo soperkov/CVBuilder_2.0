@@ -26,6 +26,9 @@ import { RedirectComponent } from './pages/redirect/redirect.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { CvNameModalComponent } from './shared/cv-name-modal/cv-name-modal.component';
 import { DeleteConfirmModalComponent } from './shared/delete-confirm-modal/delete-confirm-modal.component';
+import { MatFormField, MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [
@@ -52,6 +55,10 @@ import { DeleteConfirmModalComponent } from './shared/delete-confirm-modal/delet
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    MatFormFieldModule,
+    MatFormField,
+    MatInputModule,
+    MatAutocompleteModule,
   ],
   providers: [
     {
