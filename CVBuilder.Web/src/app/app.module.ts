@@ -22,7 +22,6 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { CVFormComponent } from './components/cv-form/cv-form.component';
 import { UserInfoComponent } from './shared/user-info/user-info.component';
 import { CVEditComponent } from './pages/cv-edit/cv-edit.component';
-import { RedirectComponent } from './pages/redirect/redirect.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { CvNameModalComponent } from './shared/cv-name-modal/cv-name-modal.component';
 import { DeleteConfirmModalComponent } from './shared/delete-confirm-modal/delete-confirm-modal.component';
@@ -44,7 +43,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MyCVsComponent,
     CVDetailsComponent,
     CVEditComponent,
-    RedirectComponent,
     MainLayoutComponent,
     CvNameModalComponent,
     DeleteConfirmModalComponent,
