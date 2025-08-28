@@ -323,6 +323,7 @@
                 .Include(c => c.Education)
                 .Include(c => c.Employment)
                 .Include(c => c.Language)
+                    .ThenInclude(l => l.Language)
                 .Include(c => c.Template)
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
         }

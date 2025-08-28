@@ -6,5 +6,6 @@
         public int CVId { get; set; }
         public int LanguageId { get; set; }
         public LanguageLevel Level { get; set; }
+        public LanguageModel? Language { get; set; }
     }
 }

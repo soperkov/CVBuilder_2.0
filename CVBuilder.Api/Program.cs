@@ -30,6 +30,7 @@ namespace CVBuilder.Api
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHttpClient();
 
             builder.Services.AddDatabase(builder.Configuration);
 
@@ -38,6 +39,7 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ILanguageService, LanguageService>();
             builder.Services.AddScoped<IUploadsService, UploadsService>();
+            builder.Services.AddScoped<IPhotoDataUriService, PhotoDataUriService>();
 
             builder.Services.AddSingleton<ITemplateCatalog>(sp =>
             {

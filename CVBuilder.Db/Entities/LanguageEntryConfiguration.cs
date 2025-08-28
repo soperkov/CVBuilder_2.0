@@ -16,6 +16,11 @@
                    .HasForeignKey(le => le.LanguageId)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(le => le.Language)    
+               .WithMany()
+               .HasForeignKey(le => le.LanguageId)
+               .OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(le => le.Level)
                    .IsRequired();
 
