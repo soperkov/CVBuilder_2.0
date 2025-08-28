@@ -80,10 +80,73 @@
         .sidebar h4{ border-bottom:2px solid rgba(255,255,255,.2); color:#e7ecf6; }
         .main h4{ border-bottom:2px solid #d9dee5; color:#2c3e50; }
 
-        .kv{ margin:0 0 3mm; }
-        .kv b{ display:block; color:#c8d3ea; font-size:3.7mm; }
-        .kv span, .kv a{ color:#fff; font-size:3.8mm; text-decoration:none; }
-        .kv a{ word-break:break-all; }
+        /* CONTACT LIST WITH STROKE-ONLY SVG ICONS */
+        .kv {
+            margin: 0 0 3mm;
+            display: flex;
+            align-items: flex-start;
+            gap: 3mm;
+        }
+
+            .kv b {
+                display: none
+            }
+            .kv span, .kv a {
+                color: white;
+                font-size: 3.9mm;
+                text-decoration: none;
+                line-height: 1.35;
+                word-break: break-word;
+            }
+
+            /* icon box */
+            .kv .ico {
+                width: 5mm;
+                height: 5mm;
+                flex: 0 0 auto;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: .4mm;
+                color: white; 
+                opacity: .9;
+            }
+
+                .kv .ico svg {
+                    width: 100%;
+                    height: 100%;
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 1.8;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                }
+
+            .kv::before {
+                font-size: 4.2mm;
+                line-height: 1;
+                color: #111827;
+                display: inline-block;
+                width: 5mm;
+                text-align: center;
+                margin-top: .3mm;
+            }
+
+        .kv-phone::before {
+            content: "📞";
+        }
+
+        .kv-email::before {
+            content: "✉";
+        }
+
+        .kv-address::before {
+            content: "📍";
+        }
+
+        .kv-web::before {
+            content: "🌐";
+        }
 
         .list{ list-style:none; padding:0; margin:0; }
         .list li{ margin:2.2mm 0; font-size:3.9mm; line-height:1.35; }
@@ -127,25 +190,67 @@
         </div>
 
         @* CONTACT *@
-        @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber)
-           || !string.IsNullOrWhiteSpace(Model?.Email)
-           || !string.IsNullOrWhiteSpace(Model?.Address)
-           || !string.IsNullOrWhiteSpace(Model?.WebPage))
-        {
-            <h4>Contact</h4>
+                @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber)
+                || !string.IsNullOrWhiteSpace(Model?.Email)
+                || !string.IsNullOrWhiteSpace(Model?.Address)
+                || !string.IsNullOrWhiteSpace(Model?.WebPage))
+                {
+                    <h4>Contact</h4>
 
-            @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber))
-            { <p class="kv"><b>Phone</b><span>@Model!.PhoneNumber</span></p> }
+                    @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber))
+                    {
+                        <p class="kv">
+                            <span class="ico">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72c.12.9.31 1.77.57 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.03a2 2 0 0 1 2.11-.45c.84.26 1.71.45 2.61.57A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                            </span>
+                            <span>@Model!.PhoneNumber</span>
+                        </p>
+                    }
 
-            @if (!string.IsNullOrWhiteSpace(Model?.Email))
-            { <p class="kv"><b>Email</b><span>@Model!.Email</span></p> }
+                    @if (!string.IsNullOrWhiteSpace(Model?.Email))
+                    {
+                        <p class="kv">
+                            <span class="ico">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+                                    <polyline points="3 7 12 13 21 7" />
+                                </svg>
+                            </span>
+                            <span>@Model!.Email</span>
+                        </p>
+                    }
 
-            @if (!string.IsNullOrWhiteSpace(Model?.Address))
-            { <p class="kv"><b>Address</b><span>@Model!.Address</span></p> }
+                    @if (!string.IsNullOrWhiteSpace(Model?.Address))
+                    {
+                        <p class="kv">
+                            <span class="ico">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </span>
+                            <span>@Model!.Address</span>
+                        </p>
+                    }
 
-            @if (!string.IsNullOrWhiteSpace(Model?.WebPage))
-            { <p class="kv"><b>Web</b><a href="@Model!.WebPage">@Model!.WebPage</a></p> }
-        }
+                    @if (!string.IsNullOrWhiteSpace(Model?.WebPage))
+                    {
+                        <p class="kv">
+                            <span class="ico">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path d="M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20" />
+                                </svg>
+                            </span>
+                            <a href="@Model!.WebPage">@Model!.WebPage</a>
+                        </p>
+                    }
+                }
+
+         
 
         @* SKILLS *@
         @if (Model?.Skills is { Count: > 0 })

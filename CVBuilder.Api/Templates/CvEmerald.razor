@@ -1,0 +1,556 @@
+﻿@* CvEmerald.razor — compact A4, Skills & Languages side-by-side in main column *@
+@using CVBuilder.Core.Models
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>CvEmerald</title>
+    <style>
+        @@page {
+            size: A4;
+            margin: 0;
+        }
+
+        :root {
+            --primary: #2d5a3d;
+            --secondary: #4a7c59;
+            --light-green: #e8f5e8;
+            --accent: #6ba777;
+            --text-dark: #2c3e50;
+            --text-light: #ffffff;
+            --text-muted: #666;
+            --card-bg: #ffffff;
+            --progress-bg: #d4e7d4;
+            /* compact tweaks */
+            --pad-side-top: 20mm;
+            --pad-main-top: 18mm;
+            --section-gap: 12mm;
+            --card-gap: 8mm;
+            --card-pad: 8mm;
+            --photo-size: 60mm; /* was 80mm */
+            --name-size: 32px; /* was 36px */
+            --title-size: 15px; /* was 18px */
+            --h2-size: 15px; /* was 16/18px */
+            --body-size: 13px; /* was 14px */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.45;
+            color: var(--text-dark);
+            background: #f5f5f5;
+        }
+
+        .cv-container {
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            display: grid;
+            grid-template-columns: 35% 65%;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text-light);
+            padding: var(--pad-side-top) 12mm 14mm 12mm;
+            position: relative;
+        }
+
+            .sidebar::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: -16px;
+                width: 32px;
+                height: 100%;
+                background: var(--light-green);
+                transform: skew(-10deg);
+                z-index: 1;
+            }
+
+        .profile-photo {
+            width: var(--photo-size);
+            height: var(--photo-size);
+            border-radius: 50%;
+            margin: 0 auto 10mm;
+            border: 4px solid rgba(255,255,255,.3);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,.2);
+            position: relative;
+            z-index: 2;
+        }
+
+            .profile-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block
+            }
+
+            .profile-photo .placeholder {
+                font-size: 24mm;
+                color: rgba(255,255,255,.7)
+            }
+
+        .sidebar h2 {
+            font-size: var(--h2-size);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10mm 0 5mm;
+            padding-bottom: 3mm;
+            border-bottom: 2px solid rgba(255,255,255,.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6mm;
+            font-size: var(--body-size);
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-icon {
+            width: 14px;
+            height: 14px;
+            margin-right: 6mm;
+            margin-top: 1mm;
+            opacity: .9;
+            flex-shrink: 0
+        }
+
+            .contact-icon svg {
+                width: 100%;
+                height: 100%;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round
+            }
+
+        .contact-text {
+            word-break: break-word;
+            line-height: 1.3
+        }
+
+            .contact-text a {
+                color: inherit;
+                text-decoration: none
+            }
+
+        /* Sidebar: Education only (skills/languages moved to main) */
+        .edu-entry {
+            margin-bottom: 6mm;
+            font-size: var(--body-size)
+        }
+
+            .edu-entry .when {
+                display: inline-block;
+                margin: 2mm 0;
+                background: var(--light-green);
+                color: var(--text-muted);
+                padding: 1.2mm 4mm;
+                border-radius: 12px;
+                font-size: 15px;
+            }
+
+            .edu-entry .inst {
+                font-weight: 600;
+                margin-bottom: 1mm
+            }
+
+            .edu-entry .desc {
+                font-size: 15px;
+                opacity: .9;
+                margin-top: 1.5mm
+            }
+
+        /* Main */
+        .main-content {
+            padding: var(--pad-main-top) 16mm 14mm 18mm;
+            position: relative;
+            z-index: 2;
+            background: #fff;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 14mm
+        }
+
+        .name {
+            font-size: var(--name-size);
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 3mm;
+            line-height: 1.1;
+        }
+
+        .job-title {
+            font-size: var(--title-size);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px
+        }
+
+        .section {
+            margin-bottom: var(--section-gap)
+        }
+
+        .section-title {
+            font-size: var(--h2-size);
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6mm;
+            padding-bottom: 2mm;
+            border-bottom: 2px solid var(--accent);
+            position: relative;
+        }
+
+            .section-title::after {
+                content: "";
+                position: absolute;
+                bottom: -2px;
+                left: 0;
+                width: 26mm;
+                height: 2px;
+                background: var(--primary);
+            }
+
+        .profile-text {
+            font-size: var(--body-size);
+            line-height: 1.55;
+            text-align: justify
+        }
+
+        .experience-item {
+            margin-bottom: var(--card-gap);
+            padding: var(--card-pad);
+            background: var(--card-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 6px rgba(0,0,0,.06);
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 3mm
+        }
+
+        .company-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase
+        }
+
+        .date-range {
+            font-size: 15px;
+            color: var(--text-muted);
+            background: var(--light-green);
+            padding: 1.5mm 4mm;
+            border-radius: 12px;
+            white-space: nowrap
+        }
+
+        .item-description {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-top: 3mm
+        }
+
+        /* NEW: Skills + Languages side-by-side */
+        .twocol {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10mm;
+        }
+
+        .skills-list {
+            list-style: none
+        }
+
+        .skill-row {
+            display: flex;
+            align-items: center;
+            gap: 5mm;
+            margin: 3mm 0
+        }
+
+        .skill-name {
+            font-size: var(--body-size);
+            font-weight: 600;
+            flex: 0 0 auto
+        }
+
+        .skill-level {
+            flex: 1 1 auto;
+            height: 6px;
+            background: var(--progress-bg);
+            border-radius: 3px;
+            overflow: hidden
+        }
+
+        .skill-progress {
+            height: 100%;
+            width: 100%;
+            background: var(--accent)
+        }
+
+        .languages-list {
+            list-style: none
+        }
+
+        .language-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6mm;
+            margin: 3mm 0;
+            font-size: var(--body-size)
+        }
+
+        .language-pill {
+            background: var(--light-green);
+            color: var(--text-dark);
+            padding: 1.5mm 6mm;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600
+        }
+
+        .language-level {
+            font-size: 15px;
+            color: var(--text-muted)
+        }
+
+        @@media print {
+            body
+
+        {
+            background: #fff
+        }
+
+        .cv-container {
+            box-shadow: none
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="profile-photo">
+                @if (!string.IsNullOrWhiteSpace(Model?.PhotoUrl))
+                {
+                    <img src="@Model!.PhotoUrl" alt="Profile Photo" />
+                }
+                else
+                {
+                    <span class="placeholder">👤</span>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber)
+            || !string.IsNullOrWhiteSpace(Model?.Email)
+            || !string.IsNullOrWhiteSpace(Model?.Address)
+            || !string.IsNullOrWhiteSpace(Model?.WebPage))
+            {
+                <section>
+                    <h2>Contact</h2>
+
+                    @if (!string.IsNullOrWhiteSpace(Model?.PhoneNumber))
+                    {
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72c.12.9.31 1.77.57 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.03a2 2 0 0 1 2.11-.45c.84.26 1.71.45 2.61.57A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                            </div>
+                            <span class="contact-text">@Model!.PhoneNumber</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model?.Email))
+                    {
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <rect x="3" y="5" width="18" height="14" rx="2" ry="2" />
+                                    <polyline points="3 7 12 13 21 7" />
+                                </svg>
+                            </div>
+                            <span class="contact-text">@Model!.Email</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model?.Address))
+                    {
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1 1 18 0" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            </div>
+                            <span class="contact-text">@Model!.Address</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model?.WebPage))
+                    {
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="2" y1="12" x2="22" y2="12" />
+                                    <path d="M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20" />
+                                </svg>
+                            </div>
+                            <span class="contact-text"><a href="@Model!.WebPage">@Model!.WebPage</a></span>
+                        </div>
+                    }
+                </section>
+            }
+
+            @if (Model?.Education is { Count: > 0 })
+            {
+                <section>
+                    <h2>Education</h2>
+                    @foreach (var edu in Model!.Education)
+                    {
+                        <div class="edu-entry">
+                            <div class="inst">@edu.InstitutionName</div>
+                            @if (edu.From != default || edu.To != default || edu.IsCurrent)
+                            {
+                                <div class="when">@edu.From.ToString("yyyy") / @(edu.IsCurrent ? "Present" : edu.To?.ToString("yyyy"))</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(edu.Description))
+                            {
+                                <div class="desc">@edu.Description</div>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <header class="header">
+                <h1 class="name">@Model?.FullName</h1>
+                @if (!string.IsNullOrWhiteSpace(Model?.JobTitle))
+                {
+                    <div class="job-title">@Model!.JobTitle</div>
+                }
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.AboutMe))
+            {
+                <section class="section">
+                    <h2 class="section-title">Profile</h2>
+                    <p class="profile-text">@Model!.AboutMe</p>
+                </section>
+            }
+
+            @if (Model?.Skills is { Count: > 0 } || Model?.Language is { Count: > 0 })
+            {
+                <section class="section">
+                    <h2 class="section-title">Skills & Languages</h2>
+                    <div class="twocol">
+                        <div>
+                            @if (Model?.Skills is { Count: > 0 })
+                            {
+                                <ul class="skills-list">
+                                    @foreach (var s in Model!.Skills)
+                                    {
+                                        <li class="skill-row">
+                                            <span class="skill-name">@s.Name</span>
+                                            <div class="skill-level"><div class="skill-progress"></div></div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                        <div>
+                            @if (Model?.Language is { Count: > 0 })
+                            {
+                                <ul class="languages-list">
+                                    @foreach (var l in Model!.Language)
+                                    {
+                                        <li class="language-item">
+                                            <span class="language-pill">@((object)(l.Language?.Name ?? $"Language #{l.LanguageId}"))</span>
+                                            <span class="language-level">@l.Level</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </div>
+                </section>
+            }
+
+            @if (Model?.Employment is { Count: > 0 })
+            {
+                <section class="section">
+                    <h2 class="section-title">Experience Work</h2>
+                    @foreach (var emp in Model!.Employment)
+                    {
+                        <div class="experience-item">
+                            <div class="item-header">
+                                <div>
+                                    <div class="company-name">@emp.CompanyName</div>
+                                </div>
+                                <div class="date-range">@emp.From.ToString("yyyy") / @(emp.IsCurrent ? "Present" : emp.To?.ToString("yyyy"))</div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(emp.Description))
+                            {
+                                <div class="item-description">@emp.Description</div>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </main>
+    </div>
+</body>
+</html>
+
+@code {
+    [Parameter] public CVModel Model { get; set; } = new();
+
+    private MarkupString FormatStackTraceLine(string line)
+    {
+        return new MarkupString(line
+            .Replace(" at ", "<span class='method'> at </span>")
+            .Replace(" in ", " <span class='file'>in </span>")
+            .Replace(":line", " <span class='line'>:line</span>"));
+    }
+}
