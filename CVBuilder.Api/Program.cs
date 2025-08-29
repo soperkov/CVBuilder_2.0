@@ -40,6 +40,7 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<ILanguageService, LanguageService>();
             builder.Services.AddScoped<IUploadsService, UploadsService>();
             builder.Services.AddScoped<IPhotoDataUriService, PhotoDataUriService>();
+            builder.Services.AddScoped<ITemplateService, TemplateService>();
 
             builder.Services.AddSingleton<ITemplateCatalog>(sp =>
             {
@@ -51,6 +52,7 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<PdfGenerator>();
             builder.Services.AddMemoryCache();
             builder.Services.AddSingleton<IDownloadTicketService, DownloadTicketService>();
+            builder.Services.AddSingleton<IDummyCvFactory, DummyCvFactory>();
 
             builder.Services.AddScoped<JwtService>();
 

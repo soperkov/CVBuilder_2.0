@@ -24,4 +24,8 @@
     <ProjectReference Include="..\CVBuilder.Db\CVBuilder.Db.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\dummy\" />
+  </ItemGroup>
+
 </Project>
