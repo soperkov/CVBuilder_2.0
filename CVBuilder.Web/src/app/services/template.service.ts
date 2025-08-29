@@ -1,28 +1,47 @@
+// services/template.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
-export interface TemplateDto {
+export interface TemplateOption {
   id: number;
   name: string;
-  description?: string | null;
-  cssContent: string;
-  previewImageUrl?: string | null;
-  isActive: boolean;
+  thumbUrl: string; // absolute URL
 }
 
 @Injectable({ providedIn: 'root' })
 export class TemplateService {
   private base = `${environment.apiBaseUrl}/template`;
-
   constructor(private http: HttpClient) {}
 
-  getById(id: number): Observable<TemplateDto> {
-    return this.http.get<TemplateDto>(`${this.base}/${id}`);
+  getAll(): Observable<TemplateOption[]> {
+    return this.http
+      .get<{ id: number; name: string; thumbUrl?: string }[]>(this.base)
+      .pipe(
+        map((list) =>
+          (list ?? []).map((t) => ({
+            id: t.id,
+            name: t.name,
+            thumbUrl:
+              t.thumbUrl ?? `${environment.apiBaseUrl}/templates/${t.name}.png`,
+          }))
+        )
+      );
   }
 
-  getAll(): Observable<TemplateDto[]> {
-    return this.http.get<TemplateDto[]>(this.base);
+  getById(id: number): Observable<TemplateOption> {
+    return this.http
+      .get<{ id: number; name: string; thumbUrl?: string }>(
+        `${this.base}/${id}`
+      )
+      .pipe(
+        map((t) => ({
+          id: t.id,
+          name: t.name,
+          thumbUrl:
+            t.thumbUrl ?? `${environment.apiBaseUrl}/templates/${t.name}.png`,
+        }))
+      );
   }
 }

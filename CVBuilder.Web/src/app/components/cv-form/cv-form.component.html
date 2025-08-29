@@ -112,11 +112,6 @@
 
   <input formControlName="photoUrl" type="hidden" />
 
-  <div>
-    <label>Template ID</label>
-    <input formControlName="templateId" type="number" />
-  </div>
-
   <div formArrayName="skills">
     <label>Skills</label>
     <div
@@ -219,6 +214,118 @@
       Add Language
     </button>
   </div>
+
+  <!-- TEMPLATE PICKER -->
+  <div class="template-picker" style="margin: 12px 0">
+    <label style="display: block; font-weight: 600; margin-bottom: 6px"
+      >Template</label
+    >
+    <!-- keep the control, but hide it -->
+    <input formControlName="templateId" type="hidden" />
+
+    <div
+      class="template-grid"
+      role="listbox"
+      aria-label="Templates"
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+      "
+    >
+      <button
+        *ngFor="let t of availableTemplates; trackBy: trackByTemplateId"
+        type="button"
+        role="option"
+        [attr.aria-selected]="selectedTemplateId === t.id"
+        (click)="selectTemplate(t.id)"
+        (keydown.enter)="selectTemplate(t.id)"
+        (keydown.space)="selectTemplate(t.id)"
+        [style.border]="
+          selectedTemplateId === t.id ? '2px solid #2563eb' : '1px solid #ddd'
+        "
+        style="
+          position: relative;
+          border-radius: 10px;
+          background: #fff;
+          padding: 8px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        "
+      >
+        <div
+          class="thumb"
+          style="
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #fafafa;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <img
+            [src]="t.thumbUrl"
+            [alt]="t.name"
+            (error)="onThumbError($event, t)"
+            style="width: 100%; height: 100%; object-fit: cover"
+          />
+        </div>
+        <div class="meta" style="margin-top: 8px; width: 100%">
+          <div
+            class="name"
+            style="
+              font-size: 12px;
+              font-weight: 600;
+              color: #1f2937;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            "
+          >
+            {{ t.name }}
+          </div>
+        </div>
+        <div
+          class="check"
+          *ngIf="selectedTemplateId === t.id"
+          aria-hidden="true"
+          style="
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: #fff;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          ✓
+        </div>
+      </button>
+    </div>
+
+    <div
+      *ngIf="
+        cvForm.get('templateId')?.invalid && cvForm.get('templateId')?.touched
+      "
+      style="color: #b91c1c; font-size: 12px; margin-top: 6px"
+    >
+      Please choose a template.
+    </div>
+  </div>
+  <!-- /TEMPLATE PICKER -->
 
   <button type="submit" hidden></button>
 </form>

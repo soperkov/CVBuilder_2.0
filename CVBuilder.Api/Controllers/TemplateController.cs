@@ -2,7 +2,6 @@
 {
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class TemplateController : ControllerBase
     {
         private readonly ITemplateService _templates;
@@ -13,37 +12,39 @@
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TemplateDto>>> GetAll(CancellationToken ct)
+        public async Task<ActionResult<IEnumerable<TemplateOptionDto>>> GetAll(CancellationToken ct)
         {
-            var list = await _templates.GetAllAsync(ct);
-            return Ok(list);
+            var items = await _templates.GetAllAsync(ct);
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            // Thumbs are served from: wwwroot/templates/{Name}.png
+            var result = items.Select(t => new TemplateOptionDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                ThumbUrl = $"{baseUrl}/templates/{t.Name}.png"
+            });
+
+            return Ok(result);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<TemplateDto>> GetById(int id, CancellationToken ct)
+        public async Task<ActionResult<TemplateOptionDto>> GetById(int id, CancellationToken ct)
         {
-            var dto = await _templates.GetAsync(id, ct);
-            if (dto is null) return NotFound();
+            var t = await _templates.GetByIdAsync(id, ct);
+            if (t is null) return NotFound();
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var dto = new TemplateOptionDto
+            {
+                Id = t.Id,
+                Name = t.Name,
+                ThumbUrl = $"{baseUrl}/templates/{t.Name}.png"
+            };
+
             return Ok(dto);
         }
-
-        [AllowAnonymous] // optional: allow front-end preview without auth
-        [HttpGet("{id:int}/preview-html")]
-        public async Task<IActionResult> PreviewHtml(int id, CancellationToken ct)
-        {
-            try
-            {
-                var html = await _templates.RenderPreviewHtmlAsync(id, ct);
-                return Content(html, "text/html; charset=utf-8");
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
     }
+
 }
+

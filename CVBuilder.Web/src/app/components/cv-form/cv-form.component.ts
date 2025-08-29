@@ -13,6 +13,10 @@ import { CreateCvDto, Cv } from '../../models';
 import { LanguageLevel } from '../../api-client';
 import { LanguageService } from '../../services/language.service';
 import { UploadsService } from '../../services/uploads.service';
+import {
+  TemplateService,
+  TemplateOption,
+} from '../../services/template.service'; // <-- add
 
 type LangOption = { id: number; code?: string; name: string };
 
@@ -36,6 +40,9 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   ) as LanguageLevel[];
   availableLanguages: LangOption[] = [];
 
+  // templates from API (id, name, thumbUrl)
+  availableTemplates: TemplateOption[] = [];
+
   photoPreviewUrl: string | null = null;
   uploadingPhoto = false;
 
@@ -44,10 +51,15 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     return this.mode === 'edit' || this.hasUploadedOnce ? 'Change' : 'Upload';
   }
 
+  get selectedTemplateId(): number | null {
+    return this.cvForm?.get('templateId')?.value ?? null;
+  }
+
   constructor(
     private fb: FormBuilder,
     private languageService: LanguageService,
-    private uploads: UploadsService
+    private uploads: UploadsService,
+    private templatesSvc: TemplateService // <-- add
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +73,7 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
       address: [''],
       webPage: [''],
       jobTitle: [''],
-      templateId: [null],
+      templateId: [null, Validators.required], // single-select required
 
       skills: this.fb.array([]),
       education: this.fb.array([]),
@@ -69,9 +81,22 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
       language: this.fb.array([]),
     });
 
+    // load languages
     this.languageService.getAll().subscribe({
       next: (list) => (this.availableLanguages = list ?? []),
       error: (err) => console.error('[Languages] load failed', err),
+    });
+
+    // load templates (from API -> returns thumbUrl); default to first if none selected
+    this.templatesSvc.getAll().subscribe({
+      next: (list) => {
+        this.availableTemplates = list ?? [];
+        const ctrl = this.cvForm.get('templateId');
+        if (!ctrl?.value && this.availableTemplates.length) {
+          ctrl?.setValue(this.availableTemplates[0].id);
+        }
+      },
+      error: (err) => console.error('[Templates] load failed', err),
     });
 
     this.cvForm.statusChanges.subscribe(() => {
@@ -90,6 +115,29 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.revokeBlobUrl();
+  }
+
+  // ---------- template picker ----------
+  selectTemplate(id: number) {
+    if (this.selectedTemplateId !== id) {
+      const c = this.cvForm.get('templateId');
+      c?.setValue(id);
+      c?.markAsDirty();
+      c?.markAsTouched();
+    }
+  }
+
+  trackByTemplateId = (_: number, t: TemplateOption) => t.id;
+
+  onThumbError(ev: Event, t: TemplateOption) {
+    const img = ev.target as HTMLImageElement;
+    img.style.display = 'none';
+    img.insertAdjacentHTML(
+      'afterend',
+      `<div class="thumb-fallback" title="${t.name}">${(t.name || '?').charAt(
+        0
+      )}</div>`
+    );
   }
 
   // ---------- upload & preview ----------

@@ -2,8 +2,7 @@
 {
     public interface ITemplateService
     {
-        Task<List<TemplateDto>> GetAllAsync(CancellationToken ct = default);
-        Task<TemplateDto?> GetAsync(int id, CancellationToken ct = default);
-        Task<string> RenderPreviewHtmlAsync(int id, CancellationToken ct = default);
+        Task<List<TemplateModel>> GetAllAsync(CancellationToken ct = default);
+        Task<TemplateModel?> GetByIdAsync(int id, CancellationToken ct = default);
     }
 }
