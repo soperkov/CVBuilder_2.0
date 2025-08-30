@@ -1,0 +1,178 @@
+/* Layout -------------------------------------------------- */
+.main-container {
+  position: relative;
+  z-index: 2;
+
+  /* center the whole page vertically & horizontally */
+  min-height: 100svh;
+  display: grid;
+
+  /* make welcome wider than the form (about 60/40) */
+  grid-template-columns: 1.35fr 1fr;
+
+  /* center content in the viewport */
+  place-items: center;
+
+  gap: clamp(2rem, 5vw, 5rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+
+  /* keep a nice readable line length on huge screens */
+  max-width: min(1200px, 94vw);
+  margin-inline: auto;
+  height: 100%;
+}
+
+/* Welcome side */
+.welcome-section {
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  color: #3d2f1f;
+  /* let it breathe a bit more than before */
+  max-width: 720px;
+}
+
+.welcome-section h1 {
+  /* bigger, responsive title */
+  font-size: clamp(2.4rem, 3.2vw + 1rem, 4rem);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.1rem;
+  background: linear-gradient(45deg, #5f4528, #8d6f4a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-section .subtitle {
+  font-size: clamp(1.1rem, 0.6vw + 1rem, 1.35rem);
+  color: #5d4a37;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.features-list {
+  list-style: none;
+  margin-top: 1.2rem;
+  padding-left: 0;
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0;
+  color: #4a3a2a;
+  font-size: clamp(1.05rem, 0.4vw + 1rem, 1.2rem);
+  line-height: 1.5;
+}
+
+.features-list li::before {
+  content: "✓";
+  display: grid;
+  place-content: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  background: linear-gradient(45deg, #6b4e2c, #9b7a51);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Form side */
+.form-section {
+  display: grid;
+  place-items: center;
+}
+
+.form-container {
+  width: 100%;
+  /* wider card */
+  max-width: clamp(420px, 44vw, 560px);
+
+  padding: clamp(1.75rem, 2.5vw, 2.6rem);
+  border-radius: 22px;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
+}
+
+/* If you use your own switch (non-Bootstrap) */
+.form-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.45rem;
+  border-radius: 999px;
+  margin-bottom: 1.3rem;
+}
+
+.switch-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 0.75rem; /* bigger */
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: transparent;
+  color: #6b4e2c;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.25s ease, box-shadow 0.25s ease;
+  font-size: 1.05rem; /* bigger text */
+}
+.switch-btn.active {
+  background: linear-gradient(45deg, #6b4e2c, #9b7a51);
+  color: #fff;
+  box-shadow: 0 8px 16px rgba(107, 78, 44, 0.35);
+}
+
+/* The viewport that hosts <app-login> / <app-register> */
+.forms-viewport {
+  position: relative;
+  /* add a tiny bit more spacing from the switch */
+  margin-top: 0.25rem;
+}
+
+/* Bigger inputs/buttons inside the form card (works for Bootstrap too) */
+.form-container input,
+.form-container select,
+.form-container textarea {
+  font-size: 1.0625rem;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+}
+
+.form-container .btn {
+  font-size: 1.0625rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .main-container {
+    /* still keep welcome a bit wider but closer to 50/50 */
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 1.25rem;
+    /* keep centered vertically even on mobile */
+    place-items: center;
+  }
+  .welcome-section {
+    text-align: center;
+    order: 2;
+    max-width: 680px;
+  }
+  .form-section {
+    order: 1;
+  }
+  .welcome-section h1 {
+    font-size: clamp(2.1rem, 4.4vw + 1rem, 3rem);
+  }
+}

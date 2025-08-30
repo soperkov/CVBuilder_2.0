@@ -1,0 +1,13 @@
+/* Reuse login styles; add a tiny grid helper */
+@import url("../login/login.component.css");
+
+.grid.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+@media (max-width: 520px) {
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,22 +1,67 @@
-<div class="auth-container">
-  <div class="auth-box">
-    <h2>{{ showLogin ? "Login to Your Account" : "Create New Account" }}</h2>
+<div class="auth-bg">
+  <!-- Main -->
+  <div class="container py-5">
+    <div class="row align-items-center g-4">
+      <!-- LEFT: Welcome -->
+      <section class="welcome-section col-12 col-lg-6">
+        <div class="welcome-panel">
+          <h1 class="mb-3">Welcome to CVBuilder</h1>
+          <p class="subtitle mb-4">
+            Create your own CVs based on professional templates.
+          </p>
+          <ul class="features-list">
+            <li>Easy to use interface</li>
+            <li>Multiple professional templates</li>
+            <li>Export to PDF instantly</li>
+            <li>Manage multiple CVs</li>
+            <li>Delete and organize your CVs</li>
+          </ul>
+        </div>
+      </section>
 
-    <app-login *ngIf="showLogin" (switchToRegister)="toggleForm()"></app-login>
-    <app-register
-      *ngIf="!showLogin"
-      (switchToLogin)="toggleForm()"
-    ></app-register>
+      <!-- Right: switch + forms -->
+      <section class="form-section col-12 col-lg-6">
+        <div class="form-container glass-card p-4 shadow-sm">
+          <!-- Switch buttons (Bootstrap) -->
+          <div
+            class="btn-group w-100 mb-3"
+            role="group"
+            aria-label="Auth switch"
+          >
+            <button
+              type="button"
+              class="btn"
+              [ngClass]="showLogin ? 'btn-primary' : 'btn-outline-primary'"
+              (click)="showLogin = true"
+              [attr.aria-pressed]="showLogin"
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [ngClass]="!showLogin ? 'btn-primary' : 'btn-outline-primary'"
+              (click)="showLogin = false"
+              [attr.aria-pressed]="!showLogin"
+            >
+              Register
+            </button>
+          </div>
 
-    <div class="form-switch">
-      <p *ngIf="showLogin">
-        Don't have an account?
-        <a role="button" (click)="toggleForm()">Register here</a>
-      </p>
-      <p *ngIf="!showLogin">
-        Already have an account?
-        <a role="button" (click)="toggleForm()">Login here</a>
-      </p>
+          <!-- Forms viewport (child components preserved) -->
+          <div class="forms-viewport">
+            <app-login
+              *ngIf="showLogin"
+              (switchToRegister)="showLogin = false"
+            ></app-login>
+
+            <app-register
+              *ngIf="!showLogin"
+              (switchToLogin)="showLogin = true"
+            ></app-register>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </div>
