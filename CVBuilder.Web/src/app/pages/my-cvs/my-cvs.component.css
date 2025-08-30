@@ -1,64 +1,184 @@
-.toolbar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin: 8px 0 16px;
+/* Page shell: center content and keep it off the viewport corners */
+.cv-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: start center; /* center horizontally */
+  padding: clamp(20px, 3vw, 36px); /* room around container */
 }
+
+/* Glass container — wider + stronger blur, gears muted */
+.cv-container {
+  position: relative;
+  width: min(1440px, 98vw); /* wider */
+  padding: clamp(28px, 3.8vw, 48px);
+  padding-top: clamp(92px, 8.6vh, 110px); /* room for the toolbar row */
+  border-radius: 26px;
+
+  /* strong frost (blur + soft fill) */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.44),
+    rgba(255, 255, 255, 0.28)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(32px) saturate(155%);
+  backdrop-filter: blur(32px) saturate(155%);
+
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.18);
+  isolation: isolate; /* ensures blur/overlays don’t bleed outside */
+  overflow: hidden; /* clean rounded edges */
+}
+
+.cv-page,
+.cv-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* subtle extra frost lighting (doesn't affect clicks or content) */
+.cv-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      900px 600px at 12% 0%,
+      rgba(255, 255, 255, 0.16),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 88% 100%,
+      rgba(255, 255, 255, 0.12),
+      transparent 60%
+    );
+}
+/* Title — bigger, centered */
+.cv-container > h2 {
+  margin: 0 0 14px;
+  text-align: center;
+  font-weight: 800;
+  color: #3d2f1f;
+  font-size: clamp(1.6rem, 1.4vw + 1.1rem, 2.4rem);
+  letter-spacing: 0.2px;
+}
+
+/* Toolbar pinned at the top edge of the container:
+   Select on the left, Delete on the right */
+.toolbar {
+  position: absolute;
+  top: clamp(16px, 2vw, 24px);
+  left: clamp(16px, 2vw, 24px);
+  right: clamp(16px, 2vw, 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* pushes ends apart */
+  gap: 12px;
+  z-index: 1;
+}
+
+/* Brand-colour buttons (same as auth) */
+.select,
+.trash {
+  background: var(--brand, #6b4e2c);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: filter 0.15s ease, transform 0.02s ease-in-out,
+    box-shadow 0.2s ease;
+}
+
+/* Shapes/padding */
 .select {
-  padding: 6px 14px;
-  border: 1px solid #333;
-  background: #fff;
+  padding: 0.55rem 1rem;
   border-radius: 999px;
+  box-shadow: 0 6px 14px rgba(107, 78, 44, 0.25);
 }
 .trash {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(107, 78, 44, 0.25);
+}
+
+/* Hover/active/disabled */
+.select:hover,
+.trash:hover {
+  filter: brightness(0.95);
+}
+.select:active,
+.trash:active {
+  transform: translateY(1px);
 }
 .trash:disabled {
   opacity: 0.4;
   pointer-events: none;
+  box-shadow: none;
 }
 
+/* Empty/loading/error — inherit container layout */
+.error {
+  color: #b91c1c;
+}
+
+/* Grid — breathing room; centered inside container */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(14px, 2vw, 20px);
+  align-items: start;
 }
+
+/* Card — a touch softer + hover lift */
 .card {
   position: relative;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 16px;
+  padding: 14px;
   background: #fff;
   cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.06s ease,
+    border-color 0.15s ease;
 }
+.card:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* A4-ish thumbnail (portrait) */
 .thumb {
   width: 100%;
-  height: 130px;
-  border-radius: 8px;
-  background: #e6f2ef;
-  margin-bottom: 8px;
+  aspect-ratio: 1 / 1.4142; /* A-series ratio */
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f6f6f6, #f0f0f0);
+  border: 1px solid #ececec;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  margin-bottom: 12px;
 }
+
+/* Meta — make text a bit larger/clearer */
 .meta .title {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.05rem;
 }
 .meta .subtitle {
   color: #667085;
 }
 .meta .muted {
   color: #8892a0;
-  font-size: 0.85rem;
-  margin-top: 4px;
+  font-size: 0.9rem;
+  margin-top: 6px;
 }
 
+/* Actions row */
 .actions {
   display: flex;
   gap: 8px;
   margin-top: 10px;
 }
 
+/* Selection circle (unchanged) */
 .circle {
   position: absolute;
   left: 10px;
@@ -75,4 +195,99 @@
     #111 0 60%,
     transparent 61% 100%
   );
+}
+
+/* ===== 3D Tilt + Shine hover effect for CV cards ===================== */
+/* Perspective on the grid so child rotations feel 3D */
+.grid {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+/* Base card styling you already have, now with 3D + smooth transition */
+.card.fx-tilt {
+  transform: rotateX(calc(var(--rx, 0) * 1deg))
+    rotateY(calc(var(--ry, 0) * 1deg)) translateZ(0);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+  box-shadow: 0 calc(var(--elev, 0) * 1px) calc(var(--elev, 0) * 3px)
+      rgba(0, 0, 0, 0.08),
+    0 6px 18px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden; /* for shine clipping */
+}
+
+/* Glossy light “sheen” that follows the cursor */
+.card.fx-tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    280px 200px at var(--mx, -9999px) var(--my, -9999px),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  mix-blend-mode: screen; /* brightens without tinting */
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+.card.fx-tilt:hover::after {
+  opacity: 1;
+}
+
+/* Parallax for thumb image: subtle translate relative to mouse */
+.parallax {
+  will-change: transform;
+  transform: translateX(calc((var(--ry, 0)) * 0.5px))
+    translateY(calc((var(--rx, 0)) * -0.5px));
+  transition: transform 0.12s ease;
+}
+
+/* Slight lift on hover */
+.card.fx-tilt:hover {
+  border-color: #e2e8f0;
+  transform: translateZ(2px) rotateX(calc(var(--rx, 0) * 1deg))
+    rotateY(calc(var(--ry, 0) * 1deg));
+}
+
+/* Optional: gentle entrance animation for cards */
+@keyframes card-pop {
+  from {
+    transform: translateY(6px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.card {
+  animation: card-pop 0.35s ease both;
+}
+.card:nth-child(2) {
+  animation-delay: 0.03s;
+}
+.card:nth-child(3) {
+  animation-delay: 0.06s;
+}
+.card:nth-child(4) {
+  animation-delay: 0.09s;
+}
+
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .cv-container {
+    background: rgba(255, 255, 255, 0.82);
+  }
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .cv-container {
+    width: min(1024px, 90vw);
+    padding-top: clamp(72px, 7vh, 88px);
+  }
 }

@@ -106,5 +106,33 @@ export class MyCVsComponent implements OnInit {
     });
   }
 
+  // at top-level of the component class
+  cardVars: Array<{
+    mx: number;
+    my: number;
+    rX: number;
+    rY: number;
+    elev: number;
+  }> = [];
+
+  onCardMove(e: MouseEvent, i: number) {
+    const el = e.currentTarget as HTMLElement;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    const px = x / r.width - 0.5; // -0.5 .. 0.5
+    const py = y / r.height - 0.5;
+
+    const rY = -px * 10; // rotateY
+    const rX = py * 8; // rotateX
+    const elev = 6 + Math.hypot(px, py) * 10; // box-shadow lift
+
+    this.cardVars[i] = { mx: x, my: y, rX, rY, elev };
+  }
+
+  resetCard(i: number) {
+    this.cardVars[i] = { mx: 0, my: 0, rX: 0, rY: 0, elev: 0 };
+  }
+
   trackById = (_: number, item: CvDisplay) => item.id;
 }

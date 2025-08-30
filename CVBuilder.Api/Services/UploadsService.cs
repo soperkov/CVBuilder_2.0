@@ -7,7 +7,7 @@ public class UploadsService : IUploadsService
     private string StorageRoot => Path.Combine(_env.ContentRootPath, "App_Data");
 
     private static readonly HashSet<string> AllowedExtensions =
-        new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+        new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".tiff", ".jfif" };
     private const long MaxBytes = 5 * 1024 * 1024;
 
     public UploadsService(IWebHostEnvironment env) => _env = env;

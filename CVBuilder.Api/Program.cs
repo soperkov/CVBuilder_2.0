@@ -1,4 +1,6 @@
+using System.Net.Security;
 using System.Text.Json.Serialization;
+using static System.Net.WebRequestMethods;
 
 namespace CVBuilder.Api
 {
@@ -73,6 +75,38 @@ namespace CVBuilder.Api
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                 };
             });
+
+            builder.Services.AddHttpClient("DataUriClient")
+                .ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    var handler = new HttpClientHandler
+                    {
+                        // Negotiate modern TLS
+                        SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
+                    };
+
+                    // DEV-ONLY: trust localhost/self-signed
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        handler.ServerCertificateCustomValidationCallback = (request, cert, chain, errors) =>
+                        {
+                            var host = request?.RequestUri?.Host;
+                            if (host == "localhost" || host == "127.0.0.1" || host == "::1")
+                                return true;
+
+                            // otherwise require a clean chain in DEV too
+                            return errors == SslPolicyErrors.None;
+                        };
+                    }
+                    else
+                    {
+                        // In prod: only accept valid chains
+                        handler.ServerCertificateCustomValidationCallback = (_, __, ___, errors) =>
+                            errors == SslPolicyErrors.None;
+                    }
+
+                    return handler;
+                });
 
             var app = builder.Build();
 

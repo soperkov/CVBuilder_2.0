@@ -1,0 +1,101 @@
+/* Component-scoped — safe to paste over your current navbar.component.css */
+
+/* Keep navbar above ripple (your ripple z is ~10000) */
+:host {
+  display: block;
+  position: relative;
+  z-index: 10050;
+}
+
+/* Fixed glass navbar, links centered */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h, 64px);
+  z-index: 10050;
+
+  display: flex;
+  align-items: center;
+  justify-content: center; /* center the <a> group */
+  gap: clamp(18px, 4vw, 44px); /* more space between links */
+  padding: 0 clamp(12px, 3vw, 28px);
+
+  /* glass look in your palette */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.22)
+  );
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+
+  font-family: inherit;
+}
+
+/* Links (Home, My CVs, New CV) */
+nav a {
+  text-decoration: none;
+  color: #3d2f1f;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.02s ease-in-out,
+    filter 0.15s ease;
+}
+nav a:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+nav a:active {
+  transform: translateY(1px);
+}
+
+/* Active route highlight */
+nav a.router-link-active,
+nav a.active {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Keep Logout on the far right WITHOUT changing your HTML */
+nav button {
+  position: absolute; /* take it out of the centered flow */
+  right: clamp(12px, 3vw, 28px);
+  top: 50%;
+  transform: translateY(-50%);
+
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: var(--brand, #6b4e2c);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.02s ease-in-out;
+}
+nav button:hover {
+  filter: brightness(0.95);
+}
+nav button:active {
+  transform: translateY(-50%) translateY(1px);
+}
+
+/* Spacer to keep page content below fixed navbar (add this element once in the page/layout) */
+.nav-spacer {
+  height: var(--nav-h, 64px);
+}
+
+/* Optional: tighter on small screens */
+@media (max-width: 900px) {
+  nav {
+    gap: clamp(0px, 0vw, 100px);
+    height: var(--nav-h, 58px);
+    padding: 0 14px;
+  }
+  .nav-spacer {
+    height: var(--nav-h, 58px);
+  }
+}

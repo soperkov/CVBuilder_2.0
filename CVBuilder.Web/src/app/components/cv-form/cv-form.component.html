@@ -1,42 +1,30 @@
-<form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem"
-      >CV photo</label
-    >
-
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-      "
-    >
-      <div
-        *ngIf="mode === 'edit' || photoPreviewUrl"
-        style="
-          width: 60px;
-          height: 60px;
-          border-radius: 8px;
-          overflow: hidden;
-          border: 1px solid #ddd;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #fafafa;
-        "
+<div class="cvform-page">
+  <div class="cvform-container" data-no-ripple>
+    <!-- Top-centered circular avatar uploader -->
+    <div class="avatar-uploader">
+      <button
+        type="button"
+        class="avatar-btn"
+        (click)="fileInput.click()"
+        [disabled]="uploadingPhoto"
+        aria-label="Upload photo"
       >
-        <ng-container *ngIf="photoPreviewUrl; else noPhoto">
+        <ng-container
+          *ngIf="
+            photoPreviewUrl || cvForm.get('photoUrl')?.value;
+            else avatarPlaceholder
+          "
+        >
           <img
-            [src]="photoPreviewUrl"
-            alt="Photo preview"
-            style="max-width: 100%; max-height: 100%; object-fit: cover"
+            class="avatar-img"
+            [src]="photoPreviewUrl || cvForm.get('photoUrl')?.value"
+            alt="CV photo"
           />
         </ng-container>
-        <ng-template #noPhoto>
-          <span style="font-size: 10px; color: #999">no photo</span>
+        <ng-template #avatarPlaceholder>
+          <span class="avatar-plus">+</span>
         </ng-template>
-      </div>
+      </button>
 
       <input
         #fileInput
@@ -48,14 +36,7 @@
 
       <button
         type="button"
-        (click)="fileInput.click()"
-        [disabled]="uploadingPhoto"
-      >
-        {{ uploadLabel }}
-      </button>
-
-      <button
-        type="button"
+        class="btn-ghost remove-photo"
         (click)="deletePhoto()"
         [disabled]="
           uploadingPhoto || !(photoPreviewUrl || cvForm.get('photoUrl')?.value)
@@ -63,269 +44,233 @@
       >
         Remove
       </button>
-
-      <span *ngIf="uploadingPhoto" style="font-size: 12px; color: #666">
-        Uploading…
-      </span>
     </div>
-  </div>
 
-  <div>
-    <label>Full Name*</label>
-    <input formControlName="fullName" />
-  </div>
+    <!-- The actual form body -->
+    <form class="cvform-body" [formGroup]="cvForm" (ngSubmit)="onSubmit()">
+      <input formControlName="photoUrl" type="hidden" />
 
-  <div>
-    <label>Job Title</label>
-    <input formControlName="jobTitle" />
-  </div>
+      <div>
+        <label>Full Name*</label>
+        <input formControlName="fullName" />
+      </div>
 
-  <div>
-    <label>Date of Birth</label>
-    <input type="date" formControlName="dateOfBirth" />
-  </div>
+      <div>
+        <label>Job Title</label>
+        <input formControlName="jobTitle" />
+      </div>
 
-  <div>
-    <label>Phone Number*</label>
-    <input formControlName="phoneNumber" />
-  </div>
-
-  <div>
-    <label>Email*</label>
-    <input type="email" formControlName="email" />
-  </div>
-
-  <div>
-    <label>Address</label>
-    <input formControlName="address" />
-  </div>
-
-  <div>
-    <label>About Me</label>
-    <textarea formControlName="aboutMe"></textarea>
-  </div>
-
-  <div>
-    <label>Webpage</label>
-    <input formControlName="webPage" />
-  </div>
-
-  <input formControlName="photoUrl" type="hidden" />
-
-  <div formArrayName="skills">
-    <label>Skills</label>
-    <div
-      *ngFor="let skill of skills.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input formControlName="name" />
-      <button type="button" (click)="removeSkill(i)">Remove</button>
-    </div>
-    <button type="button" (click)="addSkill()" [disabled]="!canAddSkill">
-      Add Skill
-    </button>
-  </div>
-
-  <div formArrayName="education">
-    <label>Education</label>
-    <div
-      *ngFor="let edu of education.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input placeholder="Institution" formControlName="institutionName" />
-      <input placeholder="Description" formControlName="description" />
-      <input type="date" formControlName="from" />
-      <input type="date" formControlName="to" />
-      <label>
-        <input type="checkbox" formControlName="isCurrent" />
-        Currently
-      </label>
-      <button type="button" (click)="removeEducation(i)">Remove</button>
-    </div>
-    <button
-      type="button"
-      (click)="addEducation()"
-      [disabled]="!canAddEducation"
-    >
-      Add Education
-    </button>
-  </div>
-
-  <div formArrayName="employment">
-    <label>Employment</label>
-    <div
-      *ngFor="let emp of employment.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <input placeholder="Company" formControlName="companyName" />
-      <input placeholder="Description" formControlName="description" />
-      <input type="date" formControlName="from" />
-      <input type="date" formControlName="to" />
-      <label>
-        <input type="checkbox" formControlName="isCurrent" />
-        Currently
-      </label>
-      <button type="button" (click)="removeEmployment(i)">Remove</button>
-    </div>
-    <button
-      type="button"
-      (click)="addEmployment()"
-      [disabled]="!canAddEmployment"
-    >
-      Add Employment
-    </button>
-  </div>
-
-  <div formArrayName="language">
-    <label>Languages</label>
-    <div
-      *ngFor="let grp of language.controls; let i = index"
-      [formGroupName]="i"
-    >
-      <label>
-        Language
-        <select formControlName="languageId">
-          <option [ngValue]="null">-- Select language --</option>
-          <option *ngFor="let l of availableLanguages" [ngValue]="l.id">
-            {{ l.name }}
-          </option>
-        </select>
-      </label>
-
-      <label style="margin-left: 12px">
-        Level
-        <select formControlName="level">
-          <option [ngValue]="null">-- Select level --</option>
-          <option *ngFor="let lvl of languageLevels" [ngValue]="lvl">
-            {{ lvl }}
-          </option>
-        </select>
-      </label>
-
-      <button
-        type="button"
-        (click)="removeLanguage(i)"
-        style="margin-left: 12px"
-      >
-        Remove
-      </button>
-    </div>
-    <button type="button" (click)="addLanguage()" [disabled]="!canAddLanguage">
-      Add Language
-    </button>
-  </div>
-
-  <!-- TEMPLATE PICKER -->
-  <div class="template-picker" style="margin: 12px 0">
-    <label style="display: block; font-weight: 600; margin-bottom: 6px"
-      >Template</label
-    >
-    <!-- keep the control, but hide it -->
-    <input formControlName="templateId" type="hidden" />
-
-    <div
-      class="template-grid"
-      role="listbox"
-      aria-label="Templates"
-      style="
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 12px;
-      "
-    >
-      <button
-        *ngFor="let t of availableTemplates; trackBy: trackByTemplateId"
-        type="button"
-        role="option"
-        [attr.aria-selected]="selectedTemplateId === t.id"
-        (click)="selectTemplate(t.id)"
-        (keydown.enter)="selectTemplate(t.id)"
-        (keydown.space)="selectTemplate(t.id)"
-        [style.border]="
-          selectedTemplateId === t.id ? '2px solid #2563eb' : '1px solid #ddd'
-        "
-        style="
-          position: relative;
-          border-radius: 10px;
-          background: #fff;
-          padding: 8px;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        "
-      >
-        <div
-          class="thumb"
-          style="
-            width: 100%;
-            aspect-ratio: 4/3;
-            background: #fafafa;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        >
-          <img
-            [src]="t.thumbUrl"
-            [alt]="t.name"
-            (error)="onThumbError($event, t)"
-            style="width: 100%; height: 100%; object-fit: cover"
-          />
+      <div class="two-col">
+        <div>
+          <label>Date of Birth</label>
+          <input type="date" formControlName="dateOfBirth" />
         </div>
-        <div class="meta" style="margin-top: 8px; width: 100%">
-          <div
-            class="name"
-            style="
-              font-size: 12px;
-              font-weight: 600;
-              color: #1f2937;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            "
+        <div>
+          <label>Phone Number*</label>
+          <input formControlName="phoneNumber" />
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label>Email*</label>
+          <input type="email" formControlName="email" />
+        </div>
+        <div>
+          <label>Address</label>
+          <input formControlName="address" />
+        </div>
+      </div>
+
+      <div>
+        <label>About Me</label>
+        <textarea formControlName="aboutMe"></textarea>
+      </div>
+
+      <div>
+        <label>Webpage</label>
+        <input formControlName="webPage" />
+      </div>
+
+      <!-- Skills -->
+      <div formArrayName="skills" class="block">
+        <div class="block-head">
+          <label>Skills</label>
+          <button
+            type="button"
+            class="btn"
+            (click)="addSkill()"
+            [disabled]="!canAddSkill"
           >
-            {{ t.name }}
-          </div>
+            Add Skill
+          </button>
         </div>
         <div
-          class="check"
-          *ngIf="selectedTemplateId === t.id"
-          aria-hidden="true"
-          style="
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #2563eb;
-            color: #fff;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
+          *ngFor="let skill of skills.controls; let i = index"
+          [formGroupName]="i"
+          class="row"
         >
-          ✓
+          <input formControlName="name" />
+          <button type="button" class="btn-ghost" (click)="removeSkill(i)">
+            Remove
+          </button>
         </div>
-      </button>
-    </div>
+      </div>
 
-    <div
-      *ngIf="
-        cvForm.get('templateId')?.invalid && cvForm.get('templateId')?.touched
-      "
-      style="color: #b91c1c; font-size: 12px; margin-top: 6px"
-    >
-      Please choose a template.
-    </div>
+      <!-- Education -->
+      <div formArrayName="education" class="block">
+        <div class="block-head">
+          <label>Education</label>
+          <button
+            type="button"
+            class="btn"
+            (click)="addEducation()"
+            [disabled]="!canAddEducation"
+          >
+            Add Education
+          </button>
+        </div>
+        <div
+          *ngFor="let edu of education.controls; let i = index"
+          [formGroupName]="i"
+          class="row wrap"
+        >
+          <input placeholder="Institution" formControlName="institutionName" />
+          <input placeholder="Description" formControlName="description" />
+          <input type="date" formControlName="from" />
+          <input type="date" formControlName="to" />
+          <label class="inline">
+            <input type="checkbox" formControlName="isCurrent" />
+            Currently
+          </label>
+          <button type="button" class="btn-ghost" (click)="removeEducation(i)">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <!-- Employment -->
+      <div formArrayName="employment" class="block">
+        <div class="block-head">
+          <label>Employment</label>
+          <button
+            type="button"
+            class="btn"
+            (click)="addEmployment()"
+            [disabled]="!canAddEmployment"
+          >
+            Add Employment
+          </button>
+        </div>
+        <div
+          *ngFor="let emp of employment.controls; let i = index"
+          [formGroupName]="i"
+          class="row wrap"
+        >
+          <input placeholder="Company" formControlName="companyName" />
+          <input placeholder="Description" formControlName="description" />
+          <input type="date" formControlName="from" />
+          <input type="date" formControlName="to" />
+          <label class="inline">
+            <input type="checkbox" formControlName="isCurrent" />
+            Currently
+          </label>
+          <button type="button" class="btn-ghost" (click)="removeEmployment(i)">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <!-- Languages -->
+      <div formArrayName="language" class="block">
+        <div class="block-head">
+          <label>Languages</label>
+          <button
+            type="button"
+            class="btn"
+            (click)="addLanguage()"
+            [disabled]="!canAddLanguage"
+          >
+            Add Language
+          </button>
+        </div>
+        <div
+          *ngFor="let grp of language.controls; let i = index"
+          [formGroupName]="i"
+          class="row wrap"
+        >
+          <label class="inline">
+            Language
+            <select formControlName="languageId">
+              <option [ngValue]="null">-- Select language --</option>
+              <option *ngFor="let l of availableLanguages" [ngValue]="l.id">
+                {{ l.name }}
+              </option>
+            </select>
+          </label>
+
+          <label class="inline">
+            Level
+            <select formControlName="level">
+              <option [ngValue]="null">-- Select level --</option>
+              <option *ngFor="let lvl of languageLevels" [ngValue]="lvl">
+                {{ lvl }}
+              </option>
+            </select>
+          </label>
+
+          <button type="button" class="btn-ghost" (click)="removeLanguage(i)">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <!-- TEMPLATE PICKER (keep your logic; removed inline styles for clarity) -->
+      <div class="template-picker block">
+        <label>Template</label>
+        <input formControlName="templateId" type="hidden" />
+
+        <div class="template-grid" role="listbox" aria-label="Templates">
+          <button
+            *ngFor="let t of availableTemplates; trackBy: trackByTemplateId"
+            type="button"
+            role="option"
+            [attr.aria-selected]="selectedTemplateId === t.id"
+            (click)="selectTemplate(t.id)"
+            (keydown.enter)="selectTemplate(t.id)"
+            (keydown.space)="selectTemplate(t.id)"
+            [class.is-selected]="selectedTemplateId === t.id"
+          >
+            <div class="thumb">
+              <img
+                [src]="t.thumbUrl"
+                [alt]="t.name"
+                (error)="onThumbError($event, t)"
+              />
+            </div>
+            <div class="name">{{ t.name }}</div>
+            <div
+              class="check"
+              *ngIf="selectedTemplateId === t.id"
+              aria-hidden="true"
+            >
+              ✓
+            </div>
+          </button>
+        </div>
+
+        <div
+          *ngIf="
+            cvForm.get('templateId')?.invalid &&
+            cvForm.get('templateId')?.touched
+          "
+          class="error"
+        >
+          Please choose a template.
+        </div>
+      </div>
+
+      <button type="submit" hidden></button>
+    </form>
   </div>
-  <!-- /TEMPLATE PICKER -->
-
-  <button type="submit" hidden></button>
-</form>
+</div>

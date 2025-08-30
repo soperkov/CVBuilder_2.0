@@ -1,66 +1,80 @@
-<h2>My CVs</h2>
+<div class="cv-page">
+  <div class="cv-container" data-no-ripple>
+    <h2>My CVs</h2>
 
-<div class="toolbar">
-  <button class="select" (click)="toggleSelectionMode()">
-    {{ selectionMode ? "Cancel" : "Select" }}
-  </button>
+    <div class="toolbar">
+      <button class="select" (click)="toggleSelectionMode()">
+        {{ selectionMode ? "Cancel" : "Select" }}
+      </button>
 
-  <button
-    class="trash"
-    [disabled]="!selectionMode || selectedIds.size === 0"
-    (click)="openDeleteModal()"
-    title="Delete selected"
-    aria-label="Delete selected"
-  >
-    🗑
-  </button>
-</div>
+      <button
+        class="trash"
+        [disabled]="!selectionMode || selectedIds.size === 0"
+        (click)="openDeleteModal()"
+        title="Delete selected"
+        aria-label="Delete selected"
+      >
+        🗑
+      </button>
+    </div>
 
-<div *ngIf="loading">Loading...</div>
-<div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="loading">Loading...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
 
-<div *ngIf="cvs.length === 0 && !loading">
-  <p>You have not created any CVs yet.</p>
-</div>
+    <div *ngIf="cvs.length === 0 && !loading">
+      <p>You have not created any CVs yet.</p>
+    </div>
 
-<div class="grid" *ngIf="cvs.length">
-  <div
-    class="card"
-    *ngFor="let cv of cvs; trackBy: trackById"
-    (click)="selectionMode ? toggleItem(cv.id, $event) : viewDetails(cv.id)"
-  >
-    <button
-      *ngIf="selectionMode"
-      type="button"
-      class="circle"
-      [class.checked]="isSelected(cv.id)"
-      (click)="toggleItem(cv.id, $event)"
-      aria-label="Select CV"
-    ></button>
+    <div class="grid" *ngIf="cvs.length">
+      <div
+        class="card fx-tilt"
+        *ngFor="let cv of cvs; let i = index; trackBy: trackById"
+        (mousemove)="onCardMove($event, i)"
+        (mouseleave)="resetCard(i)"
+        [style.--mx.px]="cardVars[i]?.mx || 0"
+        [style.--my.px]="cardVars[i]?.my || 0"
+        [style.--rx]="cardVars[i]?.rX || 0"
+        [style.--ry]="cardVars[i]?.rY || 0"
+        [style.--elev]="cardVars[i]?.elev || 0"
+        (click)="selectionMode ? toggleItem(cv.id, $event) : viewDetails(cv.id)"
+      >
+        <button
+          *ngIf="selectionMode"
+          type="button"
+          class="circle"
+          [class.checked]="isSelected(cv.id)"
+          (click)="toggleItem(cv.id, $event)"
+          aria-label="Select CV"
+        ></button>
 
-    <div class="thumb"></div>
-    <div class="meta">
-      <div class="title">{{ cv.cvName || "(Unnamed CV)" }}</div>
-      <div class="subtitle">{{ cv.fullName }}</div>
-      <div class="muted">
-        <strong>Template:</strong> {{ cv.templateName || "-" }} •
-        <strong>Created/Modified:</strong>
-        {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
+        <div class="thumb parallax"></div>
+
+        <div class="meta">
+          <div class="title">{{ cv.cvName || "(Unnamed CV)" }}</div>
+          <div class="subtitle">{{ cv.fullName }}</div>
+          <div class="muted">
+            <strong>Template:</strong> {{ cv.templateName || "-" }} •
+            <strong>Created/Modified:</strong>
+            {{ cv.localTime | date : "dd.MM.yyyy HH:mm" }}
+          </div>
+        </div>
+
+        <div class="actions" *ngIf="!selectionMode">
+          <button (click)="$event.stopPropagation(); viewDetails(cv.id)">
+            View
+          </button>
+          <button (click)="$event.stopPropagation(); editCV(cv.id)">
+            Edit
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="actions" *ngIf="!selectionMode">
-      <button (click)="$event.stopPropagation(); viewDetails(cv.id)">
-        View
-      </button>
-      <button (click)="$event.stopPropagation(); editCV(cv.id)">Edit</button>
-    </div>
+    <app-delete-confirm-modal
+      *ngIf="showDeleteModal"
+      [count]="selectedIds.size"
+      (confirm)="confirmDelete()"
+      (cancel)="closeDeleteModal()"
+    ></app-delete-confirm-modal>
   </div>
 </div>
-
-<app-delete-confirm-modal
-  *ngIf="showDeleteModal"
-  [count]="selectedIds.size"
-  (confirm)="confirmDelete()"
-  (cancel)="closeDeleteModal()"
-></app-delete-confirm-modal>

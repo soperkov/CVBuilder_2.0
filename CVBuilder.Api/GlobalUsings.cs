@@ -21,3 +21,5 @@ global using Microsoft.AspNetCore.Http;
 global using System.Security.Claims;
 global using System.Security.Cryptography;
 global using System.Text;
+global using System.Security.Authentication;
+global using System.Net.Http;

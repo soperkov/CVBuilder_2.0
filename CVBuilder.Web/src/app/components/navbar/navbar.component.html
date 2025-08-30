@@ -1,6 +1,8 @@
-<nav>
-  <a routerLink="/home">Home</a>
-  <a routerLink="/my-cvs">My CVs</a>
-  <a routerLink="/cv/create">New CV</a>
+<nav data-no-ripple>
+  <a routerLink="/home" routerLinkActive="router-link-active">Home</a>
+  <a routerLink="/my-cvs" routerLinkActive="router-link-active">My CVs</a>
+  <a routerLink="/cv/create" routerLinkActive="router-link-active">New CV</a>
   <button (click)="onLogout()">Logout</button>
 </nav>
+
+<div class="nav-spacer" aria-hidden="true"></div>
