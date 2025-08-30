@@ -238,59 +238,84 @@
 }
 
 /* Template picker (cleaned styles to match container) */
+.template-picker {
+  --tpl-bg-1: #f7efe3; /* warm, brand-matching */
+  --tpl-bg-2: #efe1c9;
+  --tpl-border: #e6d9c4;
+  --tpl-border-hover: #dccbae;
+  --tpl-selected: var(--brand, #6b4e2c);
+}
+
 .template-picker .template-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 12px;
 }
+
+/* CARD itself is A4 */
 .template-picker .template-grid button {
   position: relative;
+  aspect-ratio: 1 / 1.4142; /* A4 ratio (portrait) */
+  width: 100%;
+  padding: 0; /* let the image fill the card */
   border-radius: 12px;
-  background: #fff;
-  padding: 8px;
+  overflow: hidden; /* clean edges */
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  border: 1px solid #ddd;
+
+  background: linear-gradient(180deg, var(--tpl-bg-1), var(--tpl-bg-2));
+  border: 1px solid var(--tpl-border);
   transition: border-color 0.15s ease, box-shadow 0.15s ease,
     transform 0.06s ease;
 }
 .template-picker .template-grid button:hover {
-  border-color: #cbd5e1;
+  border-color: var(--tpl-border-hover);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 .template-picker .template-grid button.is-selected {
-  border: 2px solid #2563eb;
+  border: 2px solid var(--tpl-selected);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.02);
 }
+
+/* IMAGE area also A4 and fills the card */
 .template-picker .thumb {
-  width: 100%;
-  aspect-ratio: 4/3;
-  background: #fafafa;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
+  inset: 0; /* fill the whole card */
+  border: 0;
+  border-radius: 12px;
+  background: #fff; /* “paper” underlay */
+  display: block;
 }
 .template-picker .thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* fill the card; no letterboxing */
+  object-position: 50% 50%;
+  display: block;
 }
+
+/* Name overlay inside the A4 card */
 .template-picker .name {
-  margin-top: 8px;
-  width: 100%;
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  text-align: center;
+
+  color: var(--brand, #6b4e2c); /* brand text color */
   font-size: 12px;
-  font-weight: 600;
-  color: #1f2937;
+  font-weight: 700;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
+
+/* Checkmark stays on top-right, inside the card */
 .template-picker .check {
   position: absolute;
   top: 6px;
@@ -298,13 +323,21 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #2563eb;
-  color: #fff;
   font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  background: var(--tpl-selected);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
 }
+
+.template-picker .template-grid button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tpl-selected) 30%, transparent);
+}
+
 .error {
   color: #b91c1c;
   font-size: 12px;

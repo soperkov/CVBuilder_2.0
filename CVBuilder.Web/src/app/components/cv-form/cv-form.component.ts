@@ -8,7 +8,15 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 import { CreateCvDto, Cv } from '../../models';
 import { LanguageLevel } from '../../api-client';
 import { LanguageService } from '../../services/language.service';
@@ -16,9 +24,31 @@ import { UploadsService } from '../../services/uploads.service';
 import {
   TemplateService,
   TemplateOption,
-} from '../../services/template.service'; // <-- add
+} from '../../services/template.service';
 
 type LangOption = { id: number; code?: string; name: string };
+
+/* ------------ Minimal validators (TS function declarations) ------------ */
+
+// Required but ignores pure whitespace.
+function requiredTrimmed(): ValidatorFn {
+  return (c: AbstractControl): ValidationErrors | null => {
+    const v = (c.value ?? '').toString().trim();
+    return v ? null : { required: true };
+  };
+}
+
+// FormArray must contain at least one child where `childKey` is non-empty (trimmed).
+function atLeastOneNonEmpty(childKey: string): ValidatorFn {
+  return (fa: AbstractControl): ValidationErrors | null => {
+    const arr = fa as FormArray;
+    const ok = arr.controls.some(
+      (g) =>
+        ((g.get(childKey)?.value ?? '') as string).toString().trim().length > 0
+    );
+    return ok ? null : { minItems: true };
+  };
+}
 
 @Component({
   selector: 'app-cv-form',
@@ -59,12 +89,12 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     private fb: FormBuilder,
     private languageService: LanguageService,
     private uploads: UploadsService,
-    private templatesSvc: TemplateService // <-- add
+    private templatesSvc: TemplateService
   ) {}
 
   ngOnInit(): void {
     this.cvForm = this.fb.group({
-      fullName: ['', Validators.required],
+      fullName: ['', requiredTrimmed()], // trim-aware required
       dateOfBirth: [''],
       phoneNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -75,7 +105,10 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
       jobTitle: [''],
       templateId: [null, Validators.required], // single-select required
 
-      skills: this.fb.array([]),
+      // Required: at least one with non-empty 'name'
+      skills: this.fb.array([], { validators: atLeastOneNonEmpty('name') }),
+
+      // Optional – you already gate these in the UI
       education: this.fb.array([]),
       employment: this.fb.array([]),
       language: this.fb.array([]),
@@ -215,7 +248,8 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
   private makeSkillGroup(init?: any) {
     const name = typeof init === 'string' ? init : init?.name ?? '';
     return this.fb.group({
-      name: [name, [Validators.required, Validators.minLength(1)]],
+      // trim-aware required (no minLength needed)
+      name: [name, [requiredTrimmed()]],
     });
   }
   private makeEducationGroup(init?: any) {
@@ -437,8 +471,17 @@ export class CVFormComponent implements OnInit, OnChanges, OnDestroy {
     return dto;
   }
 
+  // expose for templates (optional)
+  isInvalid(path: string) {
+    const c = this.cvForm.get(path);
+    return !!(c && c.touched && c.invalid);
+  }
+
   onSubmit(): void {
-    if (this.cvForm.invalid) return;
+    if (this.cvForm.invalid) {
+      this.cvForm.markAllAsTouched();
+      return;
+    }
     this.formSubmitted.emit(this.buildCreateDto());
   }
 }

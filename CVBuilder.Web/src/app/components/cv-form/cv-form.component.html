@@ -50,9 +50,17 @@
     <form class="cvform-body" [formGroup]="cvForm" (ngSubmit)="onSubmit()">
       <input formControlName="photoUrl" type="hidden" />
 
+      <!-- Full Name* -->
       <div>
         <label>Full Name*</label>
-        <input formControlName="fullName" />
+        <input
+          formControlName="fullName"
+          [ngClass]="{ 'is-invalid': isInvalid('fullName') }"
+          [attr.aria-invalid]="isInvalid('fullName')"
+        />
+        <div class="invalid-feedback" *ngIf="isInvalid('fullName')">
+          Full name is required.
+        </div>
       </div>
 
       <div>
@@ -65,17 +73,43 @@
           <label>Date of Birth</label>
           <input type="date" formControlName="dateOfBirth" />
         </div>
+        <!-- Phone Number* -->
         <div>
           <label>Phone Number*</label>
-          <input formControlName="phoneNumber" />
+          <input
+            formControlName="phoneNumber"
+            [ngClass]="{ 'is-invalid': isInvalid('phoneNumber') }"
+            [attr.aria-invalid]="isInvalid('phoneNumber')"
+          />
+          <div class="invalid-feedback" *ngIf="isInvalid('phoneNumber')">
+            Phone number is required.
+          </div>
         </div>
       </div>
 
       <div class="two-col">
+        <!-- Email* -->
         <div>
           <label>Email*</label>
-          <input type="email" formControlName="email" />
+          <input
+            type="email"
+            formControlName="email"
+            [ngClass]="{ 'is-invalid': isInvalid('email') }"
+            [attr.aria-invalid]="isInvalid('email')"
+          />
+          <div
+            class="invalid-feedback"
+            *ngIf="cvForm.get('email')?.touched && cvForm.get('email')?.errors"
+          >
+            <span *ngIf="cvForm.get('email')?.errors?.['required']">
+              Email is required.
+            </span>
+            <span *ngIf="cvForm.get('email')?.errors?.['email']">
+              Invalid email format.
+            </span>
+          </div>
         </div>
+
         <div>
           <label>Address</label>
           <input formControlName="address" />
@@ -92,10 +126,10 @@
         <input formControlName="webPage" />
       </div>
 
-      <!-- Skills -->
+      <!-- Skills* -->
       <div formArrayName="skills" class="block">
         <div class="block-head">
-          <label>Skills</label>
+          <label>Skills*</label>
           <button
             type="button"
             class="btn"
@@ -105,12 +139,32 @@
             Add Skill
           </button>
         </div>
+
+        <!-- Array-level error -->
+        <div
+          class="invalid-feedback"
+          *ngIf="skills.touched && skills.errors?.['minItems']"
+        >
+          Please add at least one skill.
+        </div>
+
         <div
           *ngFor="let skill of skills.controls; let i = index"
           [formGroupName]="i"
           class="row"
         >
-          <input formControlName="name" />
+          <input
+            formControlName="name"
+            [ngClass]="{
+              'is-invalid':
+                skill.get('name')?.touched && skill.get('name')?.invalid
+            }"
+            [attr.aria-invalid]="
+              skill.get('name')?.touched && skill.get('name')?.invalid
+                ? true
+                : null
+            "
+          />
           <button type="button" class="btn-ghost" (click)="removeSkill(i)">
             Remove
           </button>
@@ -225,9 +279,12 @@
         </div>
       </div>
 
-      <!-- TEMPLATE PICKER (keep your logic; removed inline styles for clarity) -->
-      <div class="template-picker block">
-        <label>Template</label>
+      <!-- TEMPLATE PICKER -->
+      <div
+        class="template-picker block"
+        [class.has-error]="isInvalid('templateId')"
+      >
+        <label>Template*</label>
         <input formControlName="templateId" type="hidden" />
 
         <div class="template-grid" role="listbox" aria-label="Templates">
@@ -260,11 +317,12 @@
         </div>
 
         <div
+          class="invalid-feedback"
           *ngIf="
-            cvForm.get('templateId')?.invalid &&
-            cvForm.get('templateId')?.touched
+            cvForm.get('templateId')?.touched &&
+            cvForm.get('templateId')?.invalid
           "
-          class="error"
+          role="alert"
         >
           Please choose a template.
         </div>

@@ -276,6 +276,71 @@
   animation-delay: 0.09s;
 }
 
+/* === Card color theme (warm parchment instead of white) =============== */
+.cv-container {
+  /* tweak these two to taste */
+  --card-bg-1: #f7efe3; /* top */
+  --card-bg-2: #f1e5d4; /* bottom */
+  --card-border: #e6d9c4;
+  --card-border-hover: #dccbae;
+}
+
+/* Replace the white card style */
+.card {
+  position: relative;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(180deg, var(--card-bg-1), var(--card-bg-2));
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.06s ease,
+    border-color 0.15s ease;
+}
+.card:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.thumb {
+  background: linear-gradient(180deg, #fafafa, #f2f2f2);
+  border: 1px solid #ececec;
+}
+
+.title {
+  text-align: center;
+  font-size: larger !important;
+  font-weight: bold !important;
+  margin-bottom: 10px;
+  color: var(--brand);
+}
+
+.cv-container .actions button {
+  background: var(--brand, #6b4e2c);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(107, 78, 44, 0.22);
+  transition: filter 0.15s ease, transform 0.02s ease-in-out;
+}
+.cv-container .actions button:hover {
+  filter: brightness(0.95);
+}
+.cv-container .actions button:active {
+  transform: translateY(1px);
+}
+
+.cv-container .actions button:first-child {
+  background: transparent;
+  color: var(--brand, #6b4e2c);
+  border: 1px solid rgba(107, 78, 44, 0.35);
+  box-shadow: none;
+}
+
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {
