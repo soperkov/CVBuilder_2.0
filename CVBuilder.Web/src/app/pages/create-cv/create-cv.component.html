@@ -3,8 +3,24 @@
   (formStatusChanged)="onFormValidityChanged($event)"
 ></app-cv-form>
 
-<button (click)="openModal('save')" [disabled]="!isFormValid">Save</button>
-<button (click)="openModal('saveAs')" [disabled]="!isFormValid">Save As</button>
+<div class="cv-footer-actions">
+  <div class="bar" data-no-ripple>
+    <button
+      class="btn-primary"
+      (click)="openModal('save')"
+      [disabled]="!isFormValid"
+    >
+      Save
+    </button>
+    <button
+      class="btn-ghost"
+      (click)="openModal('saveAs')"
+      [disabled]="!isFormValid"
+    >
+      Save As
+    </button>
+  </div>
+</div>
 
 <app-cv-name-modal
   *ngIf="showModal"

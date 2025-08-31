@@ -327,6 +327,88 @@ body.modal-open {
   overflow: hidden;
 }
 
+/* ===== Fixed Save bar (edit/create CV) =============================== */
+.cv-footer-actions {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 15000; /* below modals (20k+), above ripple (9k) */
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* bar doesn't block page except its content */
+}
+
+/* The actual dock */
+.cv-footer-actions .bar {
+  pointer-events: auto;
+  width: min(1100px, 96vw); /* tracks your cvform-container width */
+  margin: 0 auto;
+  padding: 10px 14px;
+  padding-bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) + 8px));
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.54),
+    rgba(255, 255, 255, 0.34)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 -16px 36px rgba(0, 0, 0, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Give the page some breathing room so the bar doesn’t cover content */
+.cvform-page,
+.cv-page {
+  padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Buttons (reuse brand look) */
+.cv-footer-actions .btn-primary {
+  background: var(--brand, #6b4e2c);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 0.65rem 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  box-shadow: 0 8px 16px rgba(var(--brand-rgb, 107, 78, 44), 0.25);
+  transition: filter 0.15s ease, transform 0.02s ease-in-out;
+}
+.cv-footer-actions .btn-primary:hover {
+  filter: brightness(0.95);
+}
+.cv-footer-actions .btn-primary:active {
+  transform: translateY(1px);
+}
+
+.cv-footer-actions .btn-ghost {
+  background: transparent;
+  color: var(--brand, #6b4e2c);
+  border: 1px solid rgba(107, 78, 44, 0.35);
+  border-radius: 12px;
+  padding: 0.65rem 1.1rem;
+  font-weight: 700;
+}
+
+/* Disabled state */
+.cv-footer-actions button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Small screens */
+@media (max-width: 540px) {
+  .cv-footer-actions .bar {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+}
+
 @keyframes ripple-wave {
   0% {
     transform: translateZ(0) scale(0.25);

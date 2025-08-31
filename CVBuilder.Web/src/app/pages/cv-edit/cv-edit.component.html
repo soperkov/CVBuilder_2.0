@@ -1,23 +1,28 @@
-<div *ngIf="isLoading">Loading…</div>
-<div *ngIf="!isLoading && loadError">{{ loadError }}</div>
+<app-cv-form
+  [mode]="'edit'"
+  [value]="loadedCv"
+  (formStatusChanged)="onFormValidityChanged($event)"
+  (formSubmitted)="onFormSubmitted($event)"
+></app-cv-form>
 
-<ng-container *ngIf="!isLoading && loadedCv">
-  <app-cv-form
-    [mode]="'edit'"
-    [value]="loadedCv"
-    (formStatusChanged)="onFormValidityChanged($event)"
-    (formSubmitted)="onFormSubmitted($event)"
-  ></app-cv-form>
-
-  <div class="actions">
-    <button (click)="save()" [disabled]="!canSave">Save</button>
-    <button (click)="openSaveAsModal()" [disabled]="!canSaveAs">Save As</button>
+<!-- Fixed footer -->
+<div class="cv-footer-actions">
+  <div class="bar" data-no-ripple>
+    <button class="btn-primary" (click)="save()" [disabled]="!canSave">
+      Save
+    </button>
+    <button
+      class="btn-ghost"
+      (click)="openSaveAsModal()"
+      [disabled]="!canSaveAs"
+    >
+      Save As
+    </button>
   </div>
+</div>
 
-  <!-- Save As Modal -->
-  <app-cv-name-modal
-    *ngIf="showSaveAsModal"
-    (onSave)="handleSaveAs($event)"
-    (onCancel)="closeSaveAsModal()"
-  ></app-cv-name-modal>
-</ng-container>
+<app-cv-name-modal
+  *ngIf="showSaveAsModal"
+  (onSave)="handleSaveAs($event)"
+  (onCancel)="closeSaveAsModal()"
+></app-cv-name-modal>
