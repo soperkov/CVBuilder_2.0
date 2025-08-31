@@ -1,7 +1,4 @@
-﻿using CVBuilder.Core.Interfaces;
-using Microsoft.AspNetCore.Hosting;
-
-public class UploadsService : IUploadsService
+﻿public class UploadsService : IUploadsService
 {
     private readonly IWebHostEnvironment _env;
     private string StorageRoot => Path.Combine(_env.ContentRootPath, "App_Data");

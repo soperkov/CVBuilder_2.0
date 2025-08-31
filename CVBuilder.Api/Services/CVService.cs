@@ -9,7 +9,7 @@
             _context = context;
         }
 
-        public async Task<int> CreateCvAsync(CreateCVDto dto, int userId)
+        public async Task<int> CreateCvAsync(CreateCVDto dto, int userId, CancellationToken ct)
         {
             var cv = new CVModel
             {
@@ -30,24 +30,24 @@
 
                 Skills = dto.Skills?.Select(s => new SkillModel { Name = s.Name }).ToList() ?? new List<SkillModel>(),
                 Education = dto.Education?.Select(e =>
-                 {
-                     DateTime? toDate = e.To;
+                {
+                    DateTime? toDate = e.To;
 
-                     if (!e.IsCurrent && toDate == null)
-                     {
-                         throw new ArgumentException("To date must be provided if the education entry is not current.");
-                     }
+                    if (!e.IsCurrent && toDate == null)
+                    {
+                        throw new ArgumentException("To date must be provided if the education entry is not current.");
+                    }
 
-                     return new EducationEntryModel
-                     {
-                         CVId = e.CVId,
-                         InstitutionName = e.InstitutionName,
-                         Description = e.Description,
-                         From = e.From,
-                         To = e.To,
-                         IsCurrent = e.IsCurrent
-                     };
-                 }).ToList() ?? new List<EducationEntryModel>(),
+                    return new EducationEntryModel
+                    {
+                        CVId = e.CVId,
+                        InstitutionName = e.InstitutionName,
+                        Description = e.Description,
+                        From = e.From,
+                        To = e.To,
+                        IsCurrent = e.IsCurrent
+                    };
+                }).ToList() ?? new List<EducationEntryModel>(),
 
                 Employment = dto.Employment?.Select(e =>
                 {
@@ -78,17 +78,17 @@
 
             if (dto.TemplateId.HasValue)
             {
-                var templateExists = await _context.Templates.AnyAsync(t => t.Id == dto.TemplateId.Value);
+                var templateExists = await _context.Templates.AnyAsync(t => t.Id == dto.TemplateId.Value, ct);
                 if (!templateExists)
                     throw new ArgumentException("Template with specified ID does not exist.");
             }
 
             _context.CVs.Add(cv);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
             return cv.Id;
         }
 
-        public async Task<CVSummaryDto?> GetCvByIdAsync(int id, int userId)
+        public async Task<CVSummaryDto?> GetCvByIdAsync(int id, int userId, CancellationToken ct)
         {
             var cv = await _context.CVs
                 .Include(c => c.Skills)
@@ -96,12 +96,12 @@
                 .Include(c => c.Employment)
                 .Include(c => c.Language)
                 .Include(c => c.Template)
-                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
 
             return cv == null ? null : MapToDto(cv);
         }
 
-        public async Task<List<CVSummaryDto>> GetMyCvsAsync(int userId)
+        public async Task<List<CVSummaryDto>> GetMyCvsAsync(int userId, CancellationToken ct)
         {
             var cvs = await _context.CVs
                 .Where(cv => cv.CreatedByUser == userId)
@@ -110,12 +110,12 @@
                 .Include(cv => cv.Employment)
                 .Include(cv => cv.Language)
                 .Include(cv => cv.Template)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             return cvs.Select(MapToDto).ToList();
         }
 
-        public async Task<bool> UpdateCvAsync(int id, CreateCVDto dto, int userId)
+        public async Task<bool> UpdateCvAsync(int id, CreateCVDto dto, int userId, CancellationToken ct)
         {
             var cv = await _context.CVs
                 .Include(c => c.Skills)
@@ -123,7 +123,7 @@
                 .Include(c => c.Employment)
                 .Include(cv => cv.Language)
                 .Include(c => c.Template)
-                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
 
             if (cv == null) return false;
 
@@ -224,11 +224,11 @@
 
             cv.UpdatedAtUtc = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
             return true;
         }
 
-        public async Task<bool> DeleteCvAsync(int id, int userId)
+        public async Task<bool> DeleteCvAsync(int id, int userId, CancellationToken ct)
         {
             var cv = await _context.CVs
                 .Include(c => c.Skills)
@@ -236,7 +236,7 @@
                 .Include(c => c.Employment)
                 .Include(c => c.Language)
                 .Include(c => c.Template)
-                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
 
             if (cv == null) return false;
 
@@ -245,11 +245,11 @@
             _context.Employments.RemoveRange(cv.Employment);
             _context.LanguageEntries.RemoveRange(cv.Language);
             _context.CVs.Remove(cv);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
             return true;
         }
 
-        public async Task DeleteManyAsync(IEnumerable<int> ids)
+        public async Task DeleteManyAsync(IEnumerable<int> ids, CancellationToken ct)
         {
             var idSet = ids?.Distinct().ToList() ?? new List<int>();
             if (idSet.Count == 0) return;
@@ -257,7 +257,7 @@
             var stubs = idSet.Select(id => new CVModel { Id = id }).ToList();
             _context.AttachRange(stubs);
             _context.RemoveRange(stubs);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
         public async Task<string?> GetPhotoUrl(int id, int userId, CancellationToken ct = default)
@@ -267,7 +267,6 @@
                 .Select(c => c.PhotoUrl)
                 .FirstOrDefaultAsync(ct);
         }
-
 
         private static CVSummaryDto MapToDto(CVModel cv) => new()
         {
@@ -316,7 +315,7 @@
             }).ToList()
         };
 
-        public async Task<CVModel?> GetCvForRenderAsync(int id, int userId)
+        public async Task<CVModel?> GetCvForRenderAsync(int id, int userId, CancellationToken ct)
         {
             return await _context.CVs
                 .Include(c => c.Skills)
@@ -325,10 +324,10 @@
                 .Include(c => c.Language)
                     .ThenInclude(l => l.Language)
                 .Include(c => c.Template)
-                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId);
+                .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
         }
 
-        public async Task SetPhotoAsync(int id, int userId, string relativePath, CancellationToken ct = default)
+        public async Task SetPhotoAsync(int id, int userId, string relativePath, CancellationToken ct)
         {
             var cv = await _context.CVs
                 .FirstOrDefaultAsync(c => c.Id == id && c.CreatedByUser == userId, ct);
@@ -341,6 +340,5 @@
 
             await _context.SaveChangesAsync(ct);
         }
-
     }
 }

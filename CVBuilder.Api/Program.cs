@@ -60,6 +60,7 @@ namespace CVBuilder.Api
 
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddScoped<EmailService>();
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
             {

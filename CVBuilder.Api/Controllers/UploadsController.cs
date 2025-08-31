@@ -6,10 +6,12 @@
     public class UploadsController : ControllerBase
     {
         private readonly IUploadsService _uploads;
+        private readonly IWebHostEnvironment _env;
 
-        public UploadsController(IUploadsService uploads)
+        public UploadsController(IUploadsService uploads, IWebHostEnvironment env)
         {
             _uploads = uploads;
+            _env = env;
         }
 
         [HttpPost("photo")]
@@ -28,6 +30,7 @@
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("photo")]
         public async Task<IActionResult> GetPhoto([FromQuery] string path, CancellationToken ct)
         {
@@ -35,6 +38,20 @@
             var file = await _uploads.TryOpenPhotoAsync(path, ct);
             if (file == null) return NotFound();
             return File(file.Stream, file.ContentType);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("preview/{id:int}")]
+        public IActionResult GetCvPreview(int id)
+        {
+            var path = Path.Combine(_env.WebRootPath, "cv_previews", $"{id}.png");
+            if (!System.IO.File.Exists(path))
+            {
+                return NotFound();
+            }
+
+            var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            return File(fileStream, "image/png");
         }
     }
 }

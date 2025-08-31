@@ -67,4 +67,14 @@ export class CVService {
   getCvPhotoBlob(id: number) {
     return this.http.get(`${this.base}/${id}/photo`, { responseType: 'blob' });
   }
+
+  getCvPreviewUrl(id: number): string {
+    return `${environment.apiBaseUrl}/uploads/preview/${id}`;
+  }
+
+  getCvPhotoUrl(path: string): string {
+    return `${environment.apiBaseUrl}/uploads/photo?path=${encodeURIComponent(
+      path
+    )}`;
+  }
 }

@@ -9,13 +9,16 @@
         private readonly IPlaywrightPdfService _pdf;
         private readonly IDownloadTicketService _tickets;
         private readonly IUploadsService _uploads;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CVController(ICVService cvService, IPlaywrightPdfService pdf, IDownloadTicketService tickets, IUploadsService uploads)
+        public CVController(ICVService cvService, IPlaywrightPdfService pdf, IDownloadTicketService tickets, 
+            IUploadsService uploads, IHttpContextAccessor httpContextAccessor)
         {
             _cvService = cvService;
             _pdf = pdf;
             _tickets = tickets;
             _uploads = uploads;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         private int GetUserId()
@@ -28,7 +31,7 @@
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateCV([FromBody] CreateCVDto dto)
+        public async Task<IActionResult> CreateCV([FromBody] CreateCVDto dto, CancellationToken ct)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
@@ -37,6 +40,12 @@
             try
             {
                 var cvId = await _cvService.CreateCvAsync(dto, userId);
+
+                var httpContext = _httpContextAccessor.HttpContext;
+                var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+                await _pdf.GenerateByCvIdAsync(cvId, userId, baseUrl, ct);
+
                 return Ok(new { Id = cvId });
             }
             catch (ArgumentException ex)
@@ -72,7 +81,7 @@
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCv(int id, [FromBody] CreateCVDto dto)
+        public async Task<IActionResult> UpdateCv(int id, [FromBody] CreateCVDto dto, CancellationToken ct)
         {
             try
             {
@@ -80,7 +89,12 @@
                 var updated = await _cvService.UpdateCvAsync(id, dto, userId);
                 if (!updated)
                     return NotFound("CV not found or not yours.");
-                return NoContent(); // 204
+
+                var httpContext = _httpContextAccessor.HttpContext;
+                var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+                await _pdf.GenerateByCvIdAsync(id, userId, baseUrl, ct);
+                return NoContent();
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -175,6 +189,29 @@
             await _cvService.SetPhotoAsync(id, userId, up.Path, ct);
 
             return Ok(new { path = up.Path });
+        }
+
+        [HttpGet("pdf-inline/{id:int}")]
+        public async Task<IActionResult> GetPdfInline(int id, CancellationToken ct)
+        {
+            try
+            {
+                int userId = GetUserId();
+
+                // Call the corrected service method
+                var (pdfBytes, fileName) = await _pdf.GenerateByCvIdAsync(id, userId, ct);
+
+                Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+                return File(pdfBytes, "application/pdf");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

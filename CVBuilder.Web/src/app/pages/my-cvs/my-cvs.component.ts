@@ -7,6 +7,8 @@ import { toLocalDate } from '../../utils/date.utils';
 type CvDisplay = Cv & {
   localTime: Date | null;
   templateName?: string;
+  // A property to store the photo preview URL
+  photoPreviewUrl: string;
 };
 
 @Component({
@@ -25,7 +27,7 @@ export class MyCVsComponent implements OnInit {
   selectedIds = new Set<number>();
   showDeleteModal = false;
 
-  constructor(private cvService: CVService, private router: Router) {}
+  constructor(public cvService: CVService, private router: Router) {}
 
   ngOnInit(): void {
     this.load();
@@ -42,6 +44,10 @@ export class MyCVsComponent implements OnInit {
               ...cv,
               localTime: toLocalDate(when),
               templateName: cv.templateName ?? cv.template?.name,
+              // Get the photo preview URL for each CV
+              photoPreviewUrl: cv.id
+                ? this.cvService.getCvPhotoUrl(cv.photoUrl)
+                : '',
             };
           })
           .sort(

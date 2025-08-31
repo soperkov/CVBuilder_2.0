@@ -1,25 +1,25 @@
-﻿
-using Microsoft.AspNetCore.Components.RenderTree;
-
-namespace CVBuilder.Api.Services
+﻿namespace CVBuilder.Api.Services
 {
     public class PdfGenerator
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ITemplateRenderService _render;
         private readonly IPhotoDataUriService _photoDataUri;
 
-        public PdfGenerator(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IPhotoDataUriService photoDataUri)
+        public PdfGenerator(ITemplateRenderService render, IPhotoDataUriService photoDataUri)
         {
-            _serviceProvider = serviceProvider;
-            _loggerFactory = loggerFactory;
+            _render = render;
             _photoDataUri = photoDataUri;
         }
 
-        public async Task<string> RenderCVToHtmlAsync(CVModel model, CancellationToken ct = default)
+        // Renders HTML for the CV, honoring the selected template.
+        public async Task<string> RenderCVToHtmlAsync(CVModel model, string baseUrl, CancellationToken ct = default)
         {
+            // shallow copy so we don't mutate EF-tracked entity
             var vm = new CVModel
             {
+                Id = model.Id,
+                CreatedByUser = model.CreatedByUser,
+                User = model.User,
                 CVName = model.CVName,
                 FullName = model.FullName,
                 DateOfBirth = model.DateOfBirth,
@@ -30,26 +30,30 @@ namespace CVBuilder.Api.Services
                 WebPage = model.WebPage,
                 JobTitle = model.JobTitle,
                 TemplateId = model.TemplateId,
+                Template = model.Template,
+                PhotoUrl = model.PhotoUrl,
                 Skills = model.Skills,
                 Education = model.Education,
                 Employment = model.Employment,
                 Language = model.Language,
-                Template = model.Template
+                CreatedAtUtc = model.CreatedAtUtc,
+                UpdatedAtUtc = model.UpdatedAtUtc
             };
 
-            var dataUri = await _photoDataUri.ToDataUriAsync(model.PhotoUrl, ct);
-            if (!string.IsNullOrWhiteSpace(dataUri))
-                vm.PhotoUrl = dataUri;
-
-            await using var htmlRenderer = new HtmlRenderer(_serviceProvider, _loggerFactory);
-            var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
+            // Inline photo as data: URI if you have one saved
+            if (!string.IsNullOrWhiteSpace(model.PhotoUrl))
             {
-                var parameters = ParameterView.FromDictionary(new Dictionary<string, object?> { ["Model"] = vm });
-                var result = await htmlRenderer.RenderComponentAsync<Templates.CvClassic>(parameters);
-                return result.ToHtmlString();
-            });
+                var absolute = $"{baseUrl}/api/uploads/photo?path={Uri.EscapeDataString(model.PhotoUrl)}";
+                var dataUri = await _photoDataUri.ToDataUriAsync(absolute, ct);
+                if (!string.IsNullOrWhiteSpace(dataUri))
+                    vm.PhotoUrl = dataUri;
+            }
 
-            return html;
+            // Prefer the CV's own template name; fall back is handled inside the renderer
+            var templateName = vm.Template?.Name;
+
+            // Let the renderer find the correct component for the template name
+            return await _render.RenderAsync(templateName, vm, ct);
         }
     }
 }

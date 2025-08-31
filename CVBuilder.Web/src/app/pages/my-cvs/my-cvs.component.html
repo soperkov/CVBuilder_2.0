@@ -61,7 +61,13 @@
           aria-label="Select CV"
         ></button>
 
-        <div class="thumb parallax"></div>
+        <img
+          class="thumb parallax"
+          [src]="
+            cv.id ? cvService.getCvPreviewUrl(cv.id) : 'path/to/placeholder.png'
+          "
+          alt="Preview of {{ cv.cvName || '(Unnamed CV)' }}"
+        />
 
         <div class="meta">
           <div class="title">{{ cv.cvName || "(Unnamed CV)" }}</div>
