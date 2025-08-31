@@ -1,28 +1,52 @@
-<!-- <main class="main">
-  <div class="content">
-    <div class="left-side">
-      <h1>Welcome to CV Builder</h1>
-      <p>Create and manage your professional CV easily.</p>
-    </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    <div class="right-side">
-      <div class="pill-group">
-        <a class="pill" routerLink="/cv/create">Create New CV</a>
-        <a class="pill" href="https://angular.dev/tutorials" target="_blank" rel="noopener">Learn Angular</a>
-        <a class="pill" href="https://angular.dev/tools/devtools" target="_blank" rel="noopener">Angular DevTools</a>
+<ng-container *ngIf="userInfo; else loading">
+  <section class="home-hero home-hero--xl" data-no-ripple>
+    <!-- LEFT: copy -->
+    <div class="hero-copy">
+      <h1 class="hero-title">
+        Welcome, {{ userInfo.firstName }} {{ userInfo.lastName }}
+      </h1>
+
+      <ul class="hero-points">
+        <li>Start a new resume in minutes with clean, ATS-friendly layouts.</li>
+        <li>Pick a template and we’ll handle spacing, fonts, and sections.</li>
+        <li>Save versions as you go and export to PDF when you’re ready.</li>
+        <li>Your data stays yours — private by default.</li>
+      </ul>
+
+      <div class="hero-cta">
+        <button class="btn btn-primary" (click)="createCV()">
+          Create New CV
+        </button>
+        <button class="btn btn-outline-primary" (click)="goToMyCVs()">
+          Go to My CVs
+        </button>
       </div>
     </div>
-  </div>
-</main> -->
 
-<div *ngIf="userInfo; else loading">
-  <h2>Welcome, {{ userInfo.firstName }} {{ userInfo.lastName }}</h2>
-  <button (click)="createCV()">Create New CV</button>
-  <button (click)="goToMyCVs()">Go to My CVs</button>
-</div>
+    <!-- RIGHT: big organic blob with golden rim -->
+    <figure class="hero-blob" aria-hidden="true">
+      <svg
+        class="blob-svg"
+        viewBox="-60 -60 1020 770"
+        role="img"
+        style="overflow: visible"
+      >
+        <image
+          href="/RandomPerson.png"
+          x="-60"
+          y="-60"
+          width="1020"
+          height="770"
+          preserveAspectRatio="xMidYMid meet"
+          clip-path="url(#blobClipXL)"
+        />
+      </svg>
+    </figure>
+  </section>
+</ng-container>
 
 <ng-template #loading>
   <p>Loading user data...</p>
 </ng-template>
 
-<div *ngIf="errorMessage" style="color: red">{{ errorMessage }}</div>
+<div *ngIf="errorMessage" class="home-error">{{ errorMessage }}</div>
