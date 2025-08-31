@@ -154,7 +154,7 @@
             if (!_tickets.TryConsume(token, out var payload))
                 return Unauthorized("Invalid or expired download link.");
 
-            var (bytes, name) = await _pdf.GenerateByCvIdAsync(payload.cvId, payload.userId, ct);
+            var (bytes, name) = await _pdf.GeneratePdfOnlyByCvIdAsync(payload.cvId, payload.userId, ct);
             Response.Headers["Content-Disposition"] = $"inline; filename=\"{name}\"";
             return File(bytes, "application/pdf");
         }
@@ -174,7 +174,7 @@
             if (!_tickets.TryConsume(token, out var payload))
                 return Unauthorized("Invalid or expired download link.");
 
-            var (bytes, name) = await _pdf.GenerateByCvIdAsync(payload.cvId, payload.userId, ct);
+            var (bytes, name) = await _pdf.GeneratePdfOnlyByCvIdAsync(payload.cvId, payload.userId, ct);
             return File(bytes, "application/pdf", name);
         }
 

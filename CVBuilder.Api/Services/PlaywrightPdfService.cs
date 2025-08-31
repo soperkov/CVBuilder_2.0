@@ -77,7 +77,7 @@
             var page = await browser.NewPageAsync();
 
             await page.SetContentAsync(html, new() { WaitUntil = WaitUntilState.NetworkIdle });
-            await page.EmulateMediaAsync(new() { Media = Media.Screen });
+            await page.EmulateMediaAsync(new() { Media = Media.Print });
 
             var pdfBytes = await page.PdfAsync(new PagePdfOptions
             {
@@ -89,7 +89,8 @@
             var screenshotBytes = await page.ScreenshotAsync(new PageScreenshotOptions
             {
                 FullPage = true, // Capture the entire A4 page
-                Type = ScreenshotType.Png
+                Type = ScreenshotType.Png,
+                Clip = new Clip { X = 0, Y = 0, Width = 800, Height = 1131 }, 
             });
 
             var safeName = string.IsNullOrWhiteSpace(cv.CVName) ? $"CV_{cv.Id}" : cv.CVName.Trim();
@@ -101,5 +102,40 @@
 
             return (pdfBytes, safeName + ".pdf");
         }
+
+        public async Task<(byte[] Bytes, string FileName)> GeneratePdfOnlyByCvIdAsync(
+    int cvId, int userId, CancellationToken ct = default)
+        {
+            var cv = await _cvService.GetCvForRenderAsync(cvId, userId);
+            if (cv == null) throw new KeyNotFoundException("CV not found or not yours.");
+
+            // Build a base URL from current request
+            var httpContext = _httpContextAccessor.HttpContext
+                ?? throw new InvalidOperationException("No HttpContext available.");
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            // Render HTML for the correct template
+            var html = await _pdfGenerator.RenderCVToHtmlAsync(cv, baseUrl, ct);
+
+            using var pw = await Playwright.CreateAsync();
+            await using var browser = await pw.Chromium.LaunchAsync(new() { Headless = true });
+            var page = await browser.NewPageAsync();
+
+            await page.SetContentAsync(html, new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await page.EmulateMediaAsync(new() { Media = Media.Print });
+
+            var pdfBytes = await page.PdfAsync(new PagePdfOptions
+            {
+                Format = "A4",
+                PrintBackground = true,
+                Margin = new Margin { Top = "10mm", Right = "10mm", Bottom = "10mm", Left = "10mm" }
+            });
+
+            var safeName = string.IsNullOrWhiteSpace(cv.CVName) ? $"CV_{cv.Id}" : cv.CVName.Trim();
+            foreach (var ch in Path.GetInvalidFileNameChars()) safeName = safeName.Replace(ch, '_');
+
+            return (pdfBytes, safeName + ".pdf");
+        }
+
     }
 }

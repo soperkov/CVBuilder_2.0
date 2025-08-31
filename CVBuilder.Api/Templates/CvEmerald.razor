@@ -7,10 +7,7 @@
     <meta charset="UTF-8" />
     <title>CvEmerald</title>
     <style>
-        @@page {
-            size: A4;
-            margin: 0;
-        }
+        @@page { size: A4; margin: 0; }
 
         :root {
             --primary: #2d5a3d;
@@ -28,11 +25,11 @@
             --section-gap: 12mm;
             --card-gap: 8mm;
             --card-pad: 8mm;
-            --photo-size: 60mm; /* was 80mm */
-            --name-size: 32px; /* was 36px */
-            --title-size: 15px; /* was 18px */
-            --h2-size: 15px; /* was 16/18px */
-            --body-size: 13px; /* was 14px */
+            --photo-size: 60mm; 
+            --name-size: 32px; 
+            --title-size: 15px;
+            --h2-size: 15px;
+            --body-size: 13px; 
         }
 
         * {
@@ -51,15 +48,13 @@
         .cv-container {
             width: 210mm;
             height: 297mm;
-            margin: 0 auto;
+            margin: auto;
             background: #fff;
             display: grid;
             grid-template-columns: 35% 65%;
             box-shadow: 0 4px 20px rgba(0,0,0,.1);
-            position: relative;
             overflow: hidden;
         }
-
         /* Sidebar */
         .sidebar {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);

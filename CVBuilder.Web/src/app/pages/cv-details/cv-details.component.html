@@ -1,4 +1,5 @@
-<ng-container>
+<!-- cv-details.component.html (or whatever the file is named) -->
+<div class="cv-page">
   <div *ngIf="pdfSafeUrl; else loading" class="pdf-wrapper">
     <iframe
       [src]="pdfSafeUrl"
@@ -6,8 +7,7 @@
       height="900"
       style="border: none"
       title="CV PDF"
-    >
-    </iframe>
+    ></iframe>
   </div>
 
   <ng-template #loading>
@@ -17,17 +17,45 @@
     </div>
   </ng-template>
 
-  <div class="actions">
-    <button [routerLink]="['/cv/edit', cvId]">Edit</button>
-    <button (click)="openDeleteModal()">Delete</button>
-    <button (click)="exportPdf()">Download</button>
-  </div>
-</ng-container>
+  <!-- Fixed footer actions (same look as create/update) -->
+  <div class="cv-footer-actions">
+    <div class="bar">
+      <button
+        type="button"
+        class="btn-ghost"
+        [routerLink]="['/cvs']"
+        aria-label="Back to My CVs"
+      >
+        ← Back to My CVs
+      </button>
 
-<app-delete-confirm-modal
-  *ngIf="showDeleteModal"
-  [count]="1"
-  (confirm)="confirmDelete()"
-  (cancel)="closeDeleteModal()"
->
-</app-delete-confirm-modal>
+      <div class="spacer"></div>
+
+      <button
+        type="button"
+        class="btn-ghost"
+        (click)="openDeleteModal()"
+        aria-label="Delete this CV"
+      >
+        Delete
+      </button>
+
+      <button
+        type="button"
+        class="btn-primary"
+        [routerLink]="['/cv/edit', cvId]"
+        aria-label="Edit this CV"
+      >
+        Edit
+      </button>
+    </div>
+  </div>
+
+  <!-- Delete modal -->
+  <app-delete-confirm-modal
+    *ngIf="showDeleteModal"
+    [count]="1"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteModal()"
+  ></app-delete-confirm-modal>
+</div>
