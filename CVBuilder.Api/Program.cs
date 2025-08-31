@@ -54,7 +54,6 @@ namespace CVBuilder.Api
             builder.Services.AddScoped<PdfGenerator>();
             builder.Services.AddMemoryCache();
             builder.Services.AddSingleton<IDownloadTicketService, DownloadTicketService>();
-            builder.Services.AddSingleton<IDummyCvFactory, DummyCvFactory>();
 
             builder.Services.AddScoped<JwtService>();
 
