@@ -7,6 +7,7 @@ import {
   AbstractControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models';
 
@@ -80,23 +81,23 @@ export class RegisterComponent {
     this.errorMessage = null;
     this.isSubmitting = true;
 
-    this.authService.register(payload).subscribe({
-      next: (res) => {
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        if (error?.error?.errors) {
-          const messages = Object.values(error.error.errors).flat();
-          this.errorMessage = String(messages.join(' '));
-        } else if (error?.error?.title) {
-          this.errorMessage = error.error.title;
-        } else if (typeof error?.error === 'string') {
-          this.errorMessage = error.error;
-        } else {
-          this.errorMessage = 'Unexpected error occurred.';
-        }
-      },
-      complete: () => (this.isSubmitting = false),
-    });
+    this.authService
+      .register(payload)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (error) => {
+          if (error?.error?.errors) {
+            const messages = Object.values(error.error.errors).flat();
+            this.errorMessage = String(messages.join(' '));
+          } else if (error?.error?.title) {
+            this.errorMessage = error.error.title;
+          } else if (typeof error?.error === 'string') {
+            this.errorMessage = error.error;
+          } else {
+            this.errorMessage = 'Unexpected error occurred.';
+          }
+        },
+      });
   }
 }

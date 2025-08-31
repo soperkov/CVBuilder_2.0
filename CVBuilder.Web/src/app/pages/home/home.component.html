@@ -46,7 +46,15 @@
 </ng-container>
 
 <ng-template #loading>
-  <p>Loading user data...</p>
+  <section class="home-loading" data-no-ripple role="status" aria-live="polite">
+    <div class="loading-card">
+      <div class="loading-spinner" aria-hidden="true">
+        <span class="gear gear-a"></span>
+        <span class="gear gear-b"></span>
+      </div>
+      <div class="loading-text">Loading your workspace…</div>
+    </div>
+  </section>
 </ng-template>
 
 <div *ngIf="errorMessage" class="home-error">{{ errorMessage }}</div>

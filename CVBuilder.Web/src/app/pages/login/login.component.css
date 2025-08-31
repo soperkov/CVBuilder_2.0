@@ -62,6 +62,176 @@
   box-shadow: none;
 }
 
+/* Ensure the overlay can sit on top of the form */
+.auth-card {
+  position: relative;
+}
+
+/* Dim + blur overlay that blocks clicks while busy */
+.auth-busy {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px) saturate(130%);
+  backdrop-filter: blur(6px) saturate(130%);
+}
+
+/* Frosted little card with the spinner + text */
+.auth-busy-card {
+  padding: clamp(16px, 2vw, 24px) clamp(20px, 2.4vw, 30px);
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.46),
+    rgba(255, 255, 255, 0.3)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+/* Spinner uses your global --gear-image and brand color */
+.auth-spinner {
+  position: relative;
+  width: 86px;
+  height: 72px;
+}
+
+.auth-gear {
+  position: absolute;
+  display: block;
+  background: var(--brand, #6b4e2c);
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.18));
+  -webkit-mask: var(--gear-image) center/contain no-repeat;
+  mask: var(--gear-image) center/contain no-repeat;
+}
+
+/* Big gear */
+.auth-gear.gear-a {
+  width: 54px;
+  height: 54px;
+  left: 6px;
+  top: 6px;
+  animation: auth-spin-cw 1000ms linear infinite;
+}
+
+/* Small gear (slightly lighter), counter-rotating */
+.auth-gear.gear-b {
+  width: 42px;
+  height: 42px;
+  right: 4px;
+  bottom: 4px;
+  background: color-mix(in srgb, var(--brand) 86%, #ffffff 14%);
+  animation: auth-spin-ccw 1300ms linear infinite;
+}
+
+/* Better spacing between gears and text row */
+.auth-busy-card {
+  gap: 18px;
+}
+.auth-spinner {
+  margin-bottom: 2px;
+}
+
+/* Row for inline spinner + text + animated dots */
+.auth-busy-text-row {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #3d2f1f;
+  font-size: 1rem;
+}
+
+/* Tiny circular inline spinner beside the text */
+.auth-inline-spinner {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--brand, #6b4e2c);
+  border-right-color: transparent;
+  animation: auth-inline-rotate 600ms linear infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+@keyframes auth-inline-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animated dots after the text */
+.dots {
+  display: inline-flex;
+  margin-left: 6px;
+}
+.dots span {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 50%;
+  margin-left: 3px;
+  opacity: 0.4;
+  animation: dots-pulse 1s ease-in-out infinite;
+}
+.dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes dots-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes auth-spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes auth-spin-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.auth-busy-text {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #3d2f1f;
+  font-size: 0.98rem;
+  opacity: 0.95;
+}
+
+/* Optional: subtly mute the form beneath while busy */
+.auth-card:has(.auth-busy) .cvb-form {
+  filter: saturate(0.9) opacity(0.85);
+}
+
 .error {
   color: #b00020;
   margin-top: 0.35rem;

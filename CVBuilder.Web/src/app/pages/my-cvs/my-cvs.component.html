@@ -18,7 +18,21 @@
       </button>
     </div>
 
-    <div *ngIf="loading">Loading...</div>
+    <div
+      *ngIf="loading"
+      class="cv-loading"
+      data-no-ripple
+      role="status"
+      aria-live="polite"
+    >
+      <div class="cv-loading-card">
+        <div class="cv-loading-spinner" aria-hidden="true">
+          <span class="cv-gear gear-a"></span>
+          <span class="cv-gear gear-b"></span>
+        </div>
+        <div class="cv-loading-text">Loading your CVs…</div>
+      </div>
+    </div>
     <div *ngIf="error" class="error">{{ error }}</div>
 
     <div *ngIf="cvs.length === 0 && !loading">

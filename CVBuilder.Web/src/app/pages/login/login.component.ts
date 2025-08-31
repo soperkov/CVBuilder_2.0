@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models';
 
@@ -28,10 +29,6 @@ export class LoginComponent {
     });
   }
 
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
-
   onSubmit(): void {
     if (this.loginForm.invalid || this.isSubmitting) return;
 
@@ -43,24 +40,24 @@ export class LoginComponent {
     this.errorMessage = null;
     this.isSubmitting = true;
 
-    this.authService.login(payload).subscribe({
-      next: (res) => {
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        if (error?.error?.errors) {
-          const messages = Object.values(error.error.errors).flat();
-          this.errorMessage = String(messages.join(' '));
-        } else if (error?.error?.title) {
-          this.errorMessage = error.error.title;
-        } else if (typeof error?.error === 'string') {
-          this.errorMessage = error.error;
-        } else {
-          this.errorMessage = 'Unexpected error occurred.';
-        }
-        this.loginForm.get('password')?.reset();
-      },
-      complete: () => (this.isSubmitting = false),
-    });
+    this.authService
+      .login(payload)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: () => this.router.navigate(['/']),
+        error: (error) => {
+          if (error?.error?.errors) {
+            const messages = Object.values(error.error.errors).flat();
+            this.errorMessage = String(messages.join(' '));
+          } else if (error?.error?.title) {
+            this.errorMessage = error.error.title;
+          } else if (typeof error?.error === 'string') {
+            this.errorMessage = error.error;
+          } else {
+            this.errorMessage = 'Unexpected error occurred.';
+          }
+          this.loginForm.get('password')?.reset();
+        },
+      });
   }
 }

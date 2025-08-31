@@ -261,6 +261,95 @@ main {
   }
 }
 
+/* ===== HOME: centered loading ======================================= */
+.home-loading {
+  min-height: 70svh; /* center nicely even on short screens */
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 3vw, 36px);
+  z-index: 2; /* above gears background */
+}
+
+.loading-card {
+  padding: clamp(20px, 2.4vw, 32px) clamp(26px, 3vw, 40px);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.26)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  isolation: isolate;
+}
+
+/* Two interlocking brand gears */
+.loading-spinner {
+  position: relative;
+  width: 116px;
+  height: 96px;
+}
+
+.gear {
+  position: absolute;
+  display: block;
+  background: var(--brand, #6b4e2c);
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.18));
+  /* Use your global gear asset as a mask so the shape is crisp at any size */
+  -webkit-mask: var(--gear-image) center/contain no-repeat;
+  mask: var(--gear-image) center/contain no-repeat;
+}
+
+/* Big gear (left) */
+.gear-a {
+  width: 72px;
+  height: 72px;
+  left: 10px;
+  top: 8px;
+  animation: gear-spin-cw 1100ms linear infinite;
+}
+
+/* Small gear (bottom-right), counter-rotating */
+.gear-b {
+  width: 52px;
+  height: 52px;
+  right: 6px;
+  bottom: 4px;
+  background: color-mix(in srgb, var(--brand) 86%, #ffffff 14%);
+  animation: gear-spin-ccw 1400ms linear infinite;
+}
+
+@keyframes gear-spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes gear-spin-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.loading-text {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #3d2f1f;
+  font-size: clamp(1rem, 1.05vw, 1.15rem);
+  text-align: center;
+  opacity: 0.95;
+}
+
 @media screen and (max-width: 650px) {
   .content {
     flex-direction: column;
