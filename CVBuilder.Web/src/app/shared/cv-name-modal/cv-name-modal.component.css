@@ -1,27 +1,146 @@
+/* ========== MODALS: FIXED COMPONENT CSS ========== */
+
+/* Modal Backdrop: a full-screen, semi-transparent overlay */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 100;
+  inset: 0;
+  z-index: 9998; /* A high z-index to sit on top of everything */
+  background: radial-gradient(
+      900px 600px at 20% 10%,
+      rgba(255, 255, 255, 0.14),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 80% 90%,
+      rgba(255, 255, 255, 0.1),
+      transparent 60%
+    ),
+    rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(8px) saturate(130%);
+  backdrop-filter: blur(8px) saturate(130%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modal-fade 0.18s ease-out;
 }
 
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  z-index: 101;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+/* Modal Dialog: the main container for the modal content */
+/* The key fixes are here: `position: relative` and `z-index` */
+.modal,
+.modal-dialog {
+  position: relative; /* This is crucial for its z-index to be relative to the backdrop */
+  z-index: 9999; /* This must be higher than the backdrop */
+  width: min(560px, 92vw);
+  border-radius: 22px;
+  padding: clamp(18px, 3vw, 28px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.44),
+    rgba(255, 255, 255, 0.28)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  backdrop-filter: blur(28px) saturate(155%);
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.18);
+  color: #3d2f1f;
+  animation: modal-pop 0.2s ease-out forwards;
 }
 
+.modal h3,
+.modal-dialog h3 {
+  margin: 0 0 8px;
+  font-weight: 800;
+  font-size: clamp(1.1rem, 1vw + 0.8rem, 1.4rem);
+  letter-spacing: 0.2px;
+  color: #3d2f1f;
+}
+.modal p,
+.modal-dialog p {
+  margin: 0 0 16px;
+  color: #5d4a37;
+}
+
+/* Inputs inside modal */
+.modal input,
+.modal select,
+.modal textarea,
+.modal-dialog input,
+.modal-dialog select,
+.modal-dialog textarea {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  width: 100%;
+  pointer-events: auto; /* Ensure inputs are clickable */
+}
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus,
+.modal-dialog input:focus,
+.modal-dialog select:focus,
+.modal-dialog textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(var(--brand-rgb, 107, 78, 44), 0.22);
+}
+
+/* Actions */
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 10px;
-  margin-top: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.modal-actions .btn-primary {
+  background: var(--brand, #6b4e2c);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  box-shadow: 0 8px 16px rgba(var(--brand-rgb, 107, 78, 44), 0.25);
+  transition: filter 0.15s ease, transform 0.02s ease-in-out,
+    box-shadow 0.2s ease;
+  pointer-events: auto; /* Ensure buttons are clickable */
+}
+.modal-actions .btn-primary:hover {
+  filter: brightness(0.95);
+}
+.modal-actions .btn-primary:active {
+  transform: translateY(1px);
+}
+
+.modal-actions .btn-secondary {
+  background: transparent;
+  color: var(--brand, #6b4e2c);
+  border: 1px solid rgba(107, 78, 44, 0.35);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  pointer-events: auto; /* Ensure buttons are clickable */
+}
+
+/* Animations */
+@keyframes modal-pop {
+  from {
+    transform: translateY(2px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Make sure ripple sits below */
+#ripple-overlay {
+  z-index: 9000 !important;
 }

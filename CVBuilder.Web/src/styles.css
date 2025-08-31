@@ -51,7 +51,11 @@ body {
 }
 
 /* ========== PAGE BACKGROUND (under gears) ========== */
-body {
+/* The main container for the background and content */
+.bg-root {
+  position: relative;
+  min-height: 100vh;
+  /* Your background gradient now goes here */
   background: radial-gradient(
       1100px 700px at -10% -20%,
       rgba(255, 255, 255, 0.45),
@@ -69,31 +73,42 @@ body {
       var(--bg3) 70%,
       var(--bg4) 100%
     );
-  position: relative; /* stacking context for pseudo-layers */
 }
 
-/* ========== GLOBAL GEAR LAYERS (no markup needed) ========== */
-/* Four tiled layers, fixed to the viewport, alternating directions & offsets. */
-html::before,
-html::after,
-body::before,
-body::after {
-  content: "";
+/* The gear layer sits behind the main page content */
+.gears-layer {
   position: fixed;
+  inset: 0;
+  z-index: 1; /* A low z-index */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* The main application content sits on top of the gears */
+.page-layer {
+  position: relative;
+  z-index: 2; /* A higher z-index than the gears */
+}
+
+/* ========== GLOBAL GEAR LAYERS ========== */
+.gears-layer::before,
+.gears-layer::after {
+  content: "";
+  position: fixed; /* Fixed relative to the viewport */
   inset: -10%; /* slight bleed so rotation never shows edges */
-  z-index: 0; /* stays behind app content */
+  z-index: 0; /* Stays behind the page-layer */
   pointer-events: none;
   background-image: var(--gear-image);
   background-repeat: repeat;
   background-color: transparent;
-  filter: brightness(1.35) contrast(0.9) saturate(0.85); /* lighten regardless of SVG color */
+  filter: brightness(1.35) contrast(0.9) saturate(0.85);
   will-change: transform;
   transform-origin: 50% 50%;
   image-rendering: auto;
 }
 
 /* Layer 1 — dense, clockwise */
-html::before {
+.gears-layer::before {
   opacity: var(--gear-opacity-1);
   background-size: var(--gear-size-1) var(--gear-size-1);
   background-position: 0 0; /* grid A */
@@ -102,7 +117,7 @@ html::before {
 }
 
 /* Layer 2 — interleaved, counter-clockwise */
-html::after {
+.gears-layer::after {
   opacity: var(--gear-opacity-2);
   background-size: var(--gear-size-2) var(--gear-size-2);
   background-position: 7px 7px; /* grid B (offset => no collisions) */
@@ -157,18 +172,15 @@ body::after {
 }
 
 /* ========== LAYOUT FIX: center main content, kill top-gap ========== */
-/* Centers the main grid/hero/auth content in the viewport and
-   stops large first-child margins from creating empty space at the top. */
 main {
-  min-block-size: 100svh; /* full viewport height, mobile-safe */
+  min-block-size: 100svh;
   display: grid;
-  align-content: center; /* vertical centering */
-  justify-items: center; /* horizontal centering when needed */
+  align-content: center;
+  justify-items: center;
   padding-block: clamp(24px, 6vh, 72px);
-  z-index: 1; /* above gears */
+  z-index: 1;
 }
 
-/* If your page doesn't use <main>, this prevents top margin collapse on body */
 body > :first-child {
   margin-block-start: 0;
 }
@@ -176,7 +188,6 @@ body > :first-child {
 /* ========== FORM / CARD POLISH (keep existing look) ========== */
 form,
 .glass-card {
-  /* apply .glass-card to any non-form container you want to glassify */
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.22),
@@ -215,7 +226,6 @@ button {
   border-radius: 10px;
 }
 
-/* If you use Bootstrap-like buttons, keep brand color */
 .btn-primary {
   background-color: var(--brand) !important;
   border-color: var(--brand) !important;
@@ -254,7 +264,6 @@ button {
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* Optional: pill-shaped button group */
 .btn-group .btn {
   border-radius: 999px;
 }
@@ -263,39 +272,31 @@ button {
 #ripple-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 9000 !important;
   pointer-events: none;
-  opacity: 0; /* shown by JS only on empty areas */
+  opacity: 0;
   transition: opacity 0.12s ease;
-  mix-blend-mode: screen; /* was soft-light → 'screen' is brighter */
+  mix-blend-mode: screen;
 }
 
-/* Smaller, brighter cursor glow that always follows the pointer */
 #ripple-overlay::before {
   content: "";
   position: absolute;
   inset: 0;
   background: radial-gradient(
-      160px 160px at var(--rx, -9999px) var(--ry, -9999px),
-      rgba(255, 255, 255, 0.34) 0%,
-      rgba(255, 255, 255, 0.22) 28%,
-      rgba(255, 255, 255, 0) 64%
-    ),
-    radial-gradient(
-      260px 260px at var(--rx, -9999px) var(--ry, -9999px),
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0) 60%
-    );
+    160px 160px at var(--rx, -9999px) var(--ry, -9999px),
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.22) 28%,
+    rgba(255, 255, 255, 0) 64%
+  );
   filter: blur(0.3px);
 }
 
-/* Rings container (unchanged) */
 #ripple-rings {
   position: absolute;
   inset: 0;
 }
 
-/* Individual ring — brighter + faster */
 .ripple-ring {
   position: absolute;
   left: calc(var(--x) - var(--size) / 2);
@@ -305,7 +306,6 @@ button {
   border-radius: 50%;
   pointer-events: none;
 
-  /* brighter ring edge + inner glow */
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28) inset,
     0 0 14px rgba(255, 255, 255, 0.18) inset, 0 0 22px rgba(255, 255, 255, 0.12);
 
@@ -316,12 +316,15 @@ button {
   mix-blend-mode: soft-light;
 }
 
-/* Stronger ring on press */
 .ripple-ring.is-press {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9) inset,
     0 0 20px rgba(255, 255, 255, 0.7) inset, 0 0 30px rgba(255, 255, 255, 0.45);
   animation-duration: 1100ms;
   opacity: 1;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 @keyframes ripple-wave {
