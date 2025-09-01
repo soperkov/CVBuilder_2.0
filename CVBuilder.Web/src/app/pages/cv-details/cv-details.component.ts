@@ -26,6 +26,7 @@ export class CVDetailsComponent implements OnInit {
 
   showDeleteModal = false;
   isDeleting = false;
+  pdfLoading = true;
 
   pdfSafeUrl: SafeResourceUrl | null = null; // koristimo samo ovo u <iframe>
 
@@ -106,6 +107,10 @@ export class CVDetailsComponent implements OnInit {
   }
   closeDeleteModal() {
     this.showDeleteModal = false;
+  }
+
+  onPdfLoaded() {
+    this.pdfLoading = false;
   }
 
   confirmDelete() {

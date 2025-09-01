@@ -95,3 +95,92 @@
   text-align: right;
   margin-bottom: 12px;
 }
+
+/* ===== CVs: Centered loading state =================================== */
+.cv-loading {
+  /* keeps it nicely centered inside the glass container */
+  min-height: clamp(320px, 46vh, 580px);
+  display: grid;
+  place-items: center;
+  margin: clamp(12px, 1.6vw, 20px) 0;
+  z-index: 1; /* above background gears, below toolbar */
+}
+
+.cv-loading-card {
+  padding: clamp(22px, 2.6vw, 34px) clamp(28px, 3.2vw, 44px);
+  border-radius: 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.26)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  isolation: isolate;
+}
+
+/* Spinner: two interlocking brand gears (uses your global --gear-image) */
+.cv-loading-spinner {
+  position: relative;
+  width: 120px;
+  height: 100px;
+}
+
+.cv-gear {
+  position: absolute;
+  display: block;
+  background: var(--brand, #6b4e2c);
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.18));
+  -webkit-mask: var(--gear-image) center/contain no-repeat;
+  mask: var(--gear-image) center/contain no-repeat;
+}
+
+/* Large gear */
+.cv-gear.gear-a {
+  width: 74px;
+  height: 74px;
+  left: 10px;
+  top: 10px;
+  animation: cv-gear-spin-cw 1100ms linear infinite;
+}
+
+/* Small gear (slightly lighter), counter-rotating */
+.cv-gear.gear-b {
+  width: 54px;
+  height: 54px;
+  right: 6px;
+  bottom: 6px;
+  background: color-mix(in srgb, var(--brand) 86%, #ffffff 14%);
+  animation: cv-gear-spin-ccw 1400ms linear infinite;
+}
+
+@keyframes cv-gear-spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes cv-gear-spin-ccw {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.cv-loading-text {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #3d2f1f;
+  font-size: clamp(1rem, 1.05vw, 1.15rem);
+  text-align: center;
+  opacity: 0.95;
+}

@@ -1,57 +1,61 @@
-<!-- cv-details.component.html (or whatever the file is named) -->
 <div class="cv-page">
-  <div *ngIf="pdfSafeUrl; else loading" class="pdf-wrapper">
-    <iframe
-      [src]="pdfSafeUrl"
-      width="100%"
-      height="900"
-      style="border: none"
-      title="CV PDF"
-    ></iframe>
-  </div>
+  <!-- show a global loading state until we even have a URL -->
+  <ng-container *ngIf="!pdfSafeUrl; else pdfArea">
+    <div class="cv-loading" data-no-ripple role="status" aria-live="polite">
+      <div class="cv-loading-card">
+        <div class="cv-loading-spinner" aria-hidden="true">
+          <span class="cv-gear gear-a"></span>
+          <span class="cv-gear gear-b"></span>
+        </div>
+        <div class="cv-loading-text">Preparing your preview…</div>
+      </div>
+    </div>
+  </ng-container>
 
-  <ng-template #loading>
-    <div class="loading-state">
-      <p *ngIf="loading">Loading…</p>
-      <p *ngIf="!loading && error">{{ error }}</p>
+  <ng-template #pdfArea>
+    <div class="pdf-wrapper">
+      <iframe
+        [src]="pdfSafeUrl"
+        width="100%"
+        height="900"
+        style="border: none"
+        title="CV PDF"
+        (load)="onPdfLoaded()"
+      ></iframe>
+
+      <!-- overlay stays until iframe finishes -->
+      <div class="pdf-overlay" *ngIf="pdfLoading" aria-hidden="true">
+        <div class="cv-loading-card">
+          <div class="cv-loading-spinner" aria-hidden="true">
+            <span class="cv-gear gear-a"></span>
+            <span class="cv-gear gear-b"></span>
+          </div>
+          <div class="cv-loading-text">Loading PDF…</div>
+        </div>
+      </div>
     </div>
   </ng-template>
 
-  <!-- Fixed footer actions (same look as create/update) -->
+  <!-- Fixed footer actions ... (leave as-is) -->
   <div class="cv-footer-actions">
     <div class="bar">
-      <button
-        type="button"
-        class="btn-ghost"
-        [routerLink]="['/cvs']"
-        aria-label="Back to My CVs"
-      >
+      <button type="button" class="btn-ghost" [routerLink]="['/my-cvs']">
         ← Back to My CVs
       </button>
-
       <div class="spacer"></div>
-
-      <button
-        type="button"
-        class="btn-ghost"
-        (click)="openDeleteModal()"
-        aria-label="Delete this CV"
-      >
+      <button type="button" class="btn-ghost" (click)="openDeleteModal()">
         Delete
       </button>
-
       <button
         type="button"
         class="btn-primary"
         [routerLink]="['/cv/edit', cvId]"
-        aria-label="Edit this CV"
       >
         Edit
       </button>
     </div>
   </div>
 
-  <!-- Delete modal -->
   <app-delete-confirm-modal
     *ngIf="showDeleteModal"
     [count]="1"
